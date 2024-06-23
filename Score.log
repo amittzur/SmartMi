@@ -2376,3 +2376,36 @@ frameColorScore: 3.85
 totalScore: 8.67
 ########################################################
 
+Lenspair width: 1161.6870295085591
+Face width: 1214.9861899550156
+ratio: 0.9561318796154961
+frameWidthScore: 9.71
+
+leftEyebrowScore: 9.729601466904004
+rightEyebrowScore: 9.37454684936428
+eyebrowsMatchScore: 9.55
+
+leftCheekLineScore: 10
+rightCheekLineScore: 10
+lowerCheekLineScore: 10.0
+
+faceAspectRatio: 1.2212906650609248
+face_circularity: 0.7403531789888994
+leftLens_circularity: 0.7483758697410139
+rightLens_circularity: 0.7536803791657716
+circularityPanelty: 4.946625272677533
+aspectRatioWeight: 0.885162660243699
+ellipticalityWeight: 1
+frameShapeScore: 9.43
+
+DBL: 164.27367249601468
+Face nose width: 136.53836465036423
+ratio: 1.203131976252042
+DBL: 5.94
+
+diff: 49.91664927656903
+frameColorScore: 4.99
+
+totalScore: 8.8
+########################################################
+
