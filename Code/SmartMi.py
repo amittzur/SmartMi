@@ -10,7 +10,7 @@ from Classes import FaceFeatures, Lenspair, Score, State
 import subprocess
 import json
 import sqlite3
-
+import configparser
 import threading
 import time
 from queue import Queue
@@ -408,8 +408,16 @@ def parse_frame_contour(jsonFile):
     rightContour = np.array(rightContour)
     return leftContour, rightContour
 
+def read_config(file_path):
+    # Initialize the ConfigParser
+    config = configparser.ConfigParser()
+
+    # Read the configuration file
+    config.read(file_path)
+    return config
 
 ### Global variables ###
+config = read_config('./Code/config.ini')
 Images4Display = {"0": [], "1": [], "2": []}
 MaxNumOfImages = len(Images4Display)
 NumOfImages = 0
@@ -445,7 +453,7 @@ mp_face_mesh = mp.solutions.face_mesh
 face_mesh = mp_face_mesh.FaceMesh(refine_landmarks=True)
 
 # Start Monitoring the Spark4 DB
-db_path = r'C:\ProgramData\Shamir\Spark4\DB\Spark4.db'
+db_path = config['spark']['db_path'] #r'C:\ProgramData\Shamir\Spark4\DB\Spark4.db'
 start_monitor_thread(db_path, my_callback)
 
 ### Main code ###
