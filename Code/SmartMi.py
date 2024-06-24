@@ -14,43 +14,9 @@ import configparser
 import threading
 import time
 from queue import Queue
+from DBMonitor import DBMonitor
 
 ### Spark4 Monitor ###
-def monitor_new_measurements(db_path, queue):
-    while True:
-        try:
-            conn = sqlite3.connect(db_path)
-            cursor = conn.cursor()
-
-            cursor.execute('SELECT ColorTop FROM new_measurements order by id desc LIMIT 1')
-            new_rows = cursor.fetchall()
-
-            for row in new_rows:
-                queue.put(row)  # Send data to the main thread via queue
-                cursor.execute('DELETE FROM new_measurements')
-        finally:
-            conn.commit()
-            conn.close()
-            time.sleep(1)  # Adjust the sleep time as necessary
-
-
-def start_monitor_thread(db_path, callback):
-    queue = Queue()
-    
-    # Function to process data from the queue
-    def process_queue():
-        while True:
-            row = queue.get()
-            callback(row)  # Call the provided callback with the row data
-
-    monitor_thread = threading.Thread(target=monitor_new_measurements, args=(db_path, queue))
-    monitor_thread.daemon = True  # Daemonize thread to exit with the main program
-    monitor_thread.start()
-
-    process_thread = threading.Thread(target=process_queue)
-    process_thread.daemon = True
-    process_thread.start()
-
 def my_callback(row):
     try:
         # Convert the binary data to an image
@@ -108,10 +74,8 @@ def my_callback(row):
         window[f'-GRAPH{i}-'].draw_image(data=Images4Display[f'{i}'], location=(0, 0))
     window["-OUTPUT-"].update('Image was loaded.')
 
-
 ### Description ###
 # SmartMi enables to display multiple images taken from a video stream simultaneously, in order to compare shown features.
-
 
 ### Functions ###
 def create_splash_screen_layout_window():
@@ -347,35 +311,6 @@ def clear_images():
         Images4Display[f'{i}'] = []
         window[f'-GRAPH{i}-'].draw_image(data=ClearImage, location=(0, 0))
 
-def execute(db_path, query, params=()):
-    # Connect to the SQLite database
-    conn = sqlite3.connect(db_path)
-    cursor = conn.cursor()    
-    try:
-        # Execute the query
-        cursor.execute(query, params)        
-        # Fetch all results from the executed query
-        results = cursor.fetchall()        
-        return results    
-    except sqlite3.Error as e:
-        print(f"An error occurred: {e}")    
-    finally:
-        # Close the cursor and connection
-        cursor.close()
-        conn.close()
-
-def get_image(imageID):
-    results = execute(r'C:\ProgramData\Shamir\Spark4\DB\Spark4.db', 'SELECT ColorTop FROM Measurement AS m JOIN MeasurementSnapshot AS ms ON m.Id == ms.MeasurementId WHERE m.PatientFirstName = ? Order By ModifiedDate DESC LIMIT 1', (imageID,))
-    # Print the results
-    if len(results) > 0:
-        # Assuming the BLOB is in the second column, adjust the index if necessary
-        image_data = results[0][0]        
-        # Convert the binary data to an image
-        image = Image.open(io.BytesIO(image_data))
-        return cv2.cvtColor(np.array(image), cv2.COLOR_RGB2BGR)
-    else:
-        return None
-
 def get_frame_contours(frame):
     # Convert the frame to bytes
     success = cv2.imwrite('face.jpg', frame)
@@ -454,7 +389,9 @@ face_mesh = mp_face_mesh.FaceMesh(refine_landmarks=True)
 
 # Start Monitoring the Spark4 DB
 db_path = config['spark']['db_path'] #r'C:\ProgramData\Shamir\Spark4\DB\Spark4.db'
-start_monitor_thread(db_path, my_callback)
+
+dm = DBMonitor(db_path)
+dm.run(my_callback)
 
 ### Main code ###
 while True:
@@ -479,7 +416,7 @@ while True:
                 if imageID.strip() == "":
                     raise Exception("Please insert feasible image ID.")
 
-                image = get_image(imageID)
+                image = dm.get_image(imageID)
                 if image is None:
                     raise Exception("Image ID was not found.")
 
