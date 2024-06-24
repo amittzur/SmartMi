@@ -5,7 +5,7 @@ import os.path
 import mediapipe as mp
 import time
 from win32api import GetSystemMetrics
-from Classes import FaceFeatures, Lenspair, Score, State
+from SmartMiObjects import FaceFeatures, Lenspair, Score, State
 from datetime import datetime
 import subprocess
 import json

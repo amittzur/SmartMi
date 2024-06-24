@@ -6,7 +6,7 @@ import pathlib
 import sys
 import mediapipe as mp
 from win32api import GetSystemMetrics
-from Classes import FaceFeatures, Lenspair, Score
+from SmartMiObjects import FaceFeatures, Lenspair, Score
 
 ### Description ###
 # SmartMi enables to display multiple images taken from a video stream simultaneously, in order to compare shown features.

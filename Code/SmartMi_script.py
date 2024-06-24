@@ -6,7 +6,7 @@ import mediapipe as mp
 from PIL import Image
 import io
 from win32api import GetSystemMetrics
-from Classes import FaceFeatures, Lenspair, Score, State
+from SmartMiObjects import FaceFeatures, Lenspair, Score, State
 import subprocess
 import json
 import sqlite3
