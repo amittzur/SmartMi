@@ -7,14 +7,10 @@ from PIL import Image
 import io
 from win32api import GetSystemMetrics
 from SmartMiObjects import FaceFeatures, Lenspair, Score, State
-import subprocess
-import json
-import sqlite3
 import configparser
-import threading
-import time
-from queue import Queue
 from DBMonitor import DBMonitor
+from LensContourFinder import LensContourFinder
+from FaceFeatureExtractor import FaceFeatureExtractor
 
 ### Spark4 Monitor ###
 def my_callback(row):
@@ -22,22 +18,22 @@ def my_callback(row):
         # Convert the binary data to an image
         raw_image = Image.open(io.BytesIO(row[0]))
         image = cv2.cvtColor(np.array(raw_image), cv2.COLOR_RGB2BGR)
-
-        # Process the frame with MediaPipe Face Detection
-        results_detection = face_detection.process(image)
-        leftContour, rightContour = get_frame_contours(image)
     except Exception as err:
         window["-OUTPUT-"].update(err)
         return
+    
+    #get frame contours
+    cf = LensContourFinder(BasePath)
+    leftContour, rightContour = cf.get_frame_contours(image)
                                         
     leftPupil = np.array([np.mean(leftContour[:,0]), np.mean(leftContour[:,1])])
     rightPupil = np.array([np.mean(rightContour[:,0]), np.mean(rightContour[:,1])])
     symmetryLine = np.array([[int((leftPupil[0]+rightPupil[0])/2)-1, int((leftPupil[1]+rightPupil[1])/2)+20], [int((leftPupil[0]+rightPupil[0])/2), int((leftPupil[1]+rightPupil[1])/2)-20]])
     lenspair = Lenspair(leftContour, rightContour, symmetryLine, leftPupil, rightPupil)
 
-    ## Face detection
+    # Process the frame with MediaPipe Face Detection
     rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    results_mesh = face_mesh.process(rgb_image)
+    results_mesh = ffe.get_face_mesh(rgb_image)
 
     if results_mesh.multi_face_landmarks:
         face_landmarks = results_mesh.multi_face_landmarks[0]
@@ -311,38 +307,6 @@ def clear_images():
         Images4Display[f'{i}'] = []
         window[f'-GRAPH{i}-'].draw_image(data=ClearImage, location=(0, 0))
 
-def get_frame_contours(frame):
-    # Convert the frame to bytes
-    success = cv2.imwrite('face.jpg', frame)
-    if not success:
-        raise Exception("Could not save face image.")
-    
-    relative_path = os.path.join(BasePath,'SparkSdkApi','SparkAI.API.exe')
-    parameters = [os.path.join(BasePath,'face.jpg')]  # List of parameters
-
-    # Combine the executable and parameters into a single command
-    command = [relative_path] + parameters
-
-    # Run the command
-    result = subprocess.run(command, capture_output=True, text=True, cwd=os.path.join(BasePath,'SparkSdkApi'))
-    if result.returncode != 0:
-        raise Exception("Failed to extract frame contours.")
-
-    leftContour, rightContour = parse_frame_contour(os.path.join(BasePath,"face_contour_points.json"))
-    return leftContour, rightContour
-
-def parse_frame_contour(jsonFile): 
-    # Read the JSON file
-    with open(jsonFile, 'r') as file:
-        contours = json.load(file)
-    
-    # Create lists for RightContour and LeftContour
-    leftContour = [[point["X"], point["Y"]] for point in contours["LeftContour"]]
-    rightContour = [[point["X"], point["Y"]] for point in contours["RightContour"]]
-    leftContour = np.array(leftContour)
-    rightContour = np.array(rightContour)
-    return leftContour, rightContour
-
 def read_config(file_path):
     # Initialize the ConfigParser
     config = configparser.ConfigParser()
@@ -377,15 +341,7 @@ Shamir_Logo = os.path.join(IconsPath, 'ShamirNewLogo2.png')
 StartIcon = cv2.imread(os.path.join(IconsPath, 'Start.png'))
 window = create_splash_screen_layout_window()
 
-
-# Initialize MediaPipe Face Detection
-mp_face = mp.solutions.face_detection
-mp_drawing = mp.solutions.drawing_utils
-face_detection = mp_face.FaceDetection(min_detection_confidence=0.2)
-
-# Initialize MediaPipe Face Mesh
-mp_face_mesh = mp.solutions.face_mesh
-face_mesh = mp_face_mesh.FaceMesh(refine_landmarks=True)
+ffe = FaceFeatureExtractor()
 
 # Start Monitoring the Spark4 DB
 db_path = config['spark']['db_path'] #r'C:\ProgramData\Shamir\Spark4\DB\Spark4.db'
@@ -421,8 +377,9 @@ while True:
                     raise Exception("Image ID was not found.")
 
                 # Process the frame with MediaPipe Face Detection
-                results_detection = face_detection.process(image)
-                leftContour, rightContour = get_frame_contours(image)
+                results_detection = ffe.detect_face(image)
+                cf = LensContourFinder(BasePath)
+                leftContour, rightContour = cf.get_frame_contours(image)
             except Exception as err:
                 window["-OUTPUT-"].update(err)
                 continue
@@ -434,7 +391,7 @@ while True:
 
             ## Face detection
             rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            results_mesh = face_mesh.process(rgb_image)
+            results_mesh = ffe.get_face_mesh(rgb_image)
 
             if results_mesh.multi_face_landmarks:
                 face_landmarks = results_mesh.multi_face_landmarks[0]

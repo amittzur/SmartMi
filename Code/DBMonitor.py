@@ -62,7 +62,7 @@ class DBMonitor:
             conn.close()
             
     def get_image(self, imageID):
-        results = self.execute(self.db, 'SELECT ColorTop FROM Measurement AS m JOIN MeasurementSnapshot AS ms ON m.Id == ms.MeasurementId WHERE m.PatientFirstName = ? Order By ModifiedDate DESC LIMIT 1', (imageID,))
+        results = self.execute('SELECT ColorTop FROM Measurement AS m JOIN MeasurementSnapshot AS ms ON m.Id == ms.MeasurementId WHERE m.PatientFirstName = ? Order By ModifiedDate DESC LIMIT 1', (imageID,))
         # Print the results
         if len(results) > 0:
             try:
