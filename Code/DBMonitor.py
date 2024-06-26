@@ -34,7 +34,14 @@ class DBMonitor:
         def process_queue():
             while True:
                 row = self.queue.get()
-                callback(row)  # Call the provided callback with the row data
+                try:
+                    # Convert the binary data to an image
+                    raw_image = Image.open(io.BytesIO(row[0]))
+                    image = cv2.cvtColor(np.array(raw_image), cv2.COLOR_RGB2BGR)
+                except:
+                    raise Exception("Couldn't open image.")
+
+                callback(image)  # Call the provided callback with the row data
 
         monitor_thread = threading.Thread(target=self.monitor_new_measurements)
         monitor_thread.daemon = True  # Daemonize thread to exit with the main program

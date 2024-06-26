@@ -1,4 +1,5 @@
 import numpy as np
+import cv2
 import logging
 from scipy import linalg
 from enum import Enum
@@ -21,6 +22,13 @@ class FaceFeatures:
         self.noseWidth = dist2D(landmarks.landmark[193], landmarks.landmark[417])
         self.skinColor = self.calculate_skin_color(faceImage, landmarks.landmark)
         self.irisWidth = self.calculate_iris_width(landmarks.landmark)
+        faceContour = self.jawLine.copy()
+        S = [389, 251, 284, 332, 297, 338, 10, 109, 67, 103, 54, 21, 162]
+        print()
+        for i in S:
+            faceContour = np.append(faceContour, [np.array([landmarks.landmark[i].x, landmarks.landmark[i].y]).astype(np.int32)], axis=0)
+        self.faceArea = cv2.contourArea(faceContour)
+
         #self.eyeContoursCompletionLines = self.get_eye_contours_completion(landmarks.landmark)
         #self.upperNoseWidth = dist2D(landmarks.landmark[193], landmarks.landmark[417])
         #self.lowerNoseWidth = dist2D(landmarks.landmark[219], landmarks.landmark[278])
@@ -120,6 +128,9 @@ class Lenspair:
         self.rightWidth = max(self.transformedRightContour[:,0]) - min(self.transformedRightContour[:,0])
         self.DBL = min(self.transformedLeftContour[:,0]) - max(self.transformedRightContour[:,0])
         self.color = [100, 100, 100]
+        self.leftLensArea = cv2.contourArea(leftContour)
+        self.rightLensArea = cv2.contourArea(rightContour)
+        self.frameArea = self.leftLensArea + self.rightLensArea
 
     def transform_contour(self, contour, pointOfRotation):
         if self.symmetryLine[1,0] - self.symmetryLine[0,0] == 0:
@@ -144,8 +155,7 @@ class Lenspair:
         return np.transpose(transformedContour)[:,0:-1]
 
 class Score:
-    def __init__(self, faceFeatures, lenspair, saveData):
-        self.saveData = saveData
+    def __init__(self, faceFeatures, lenspair):
         self.faceFeatures = faceFeatures
         self.lenspair = lenspair
         self.frameWidth, self.frameWidthRatio = self.calculate_frame_width_score()
@@ -155,30 +165,31 @@ class Score:
                 self.leftLens_circleCenter, self.leftLens_circleRadius, self.rightLens_circleCenter, self.rightLens_circleRadius = self.frame_shape_score()
         self.DBL, self.DBLWidthRatio = self.calculate_DBL_score()
         self.frameColor, self.colorDiff = self.calculate_frame_color_score()
+        self.frameArea, self.frameAreaRatio = self.calculate_frame_area_score()
 
         self.W = self.get_weights()
         self.total = self.get_total_score()
 
     def calculate_frame_width_score(self):
         ratio = self.lenspair.width / self.faceFeatures.width
-        frameWidthScore = round(self.parabola_score(ratio, 1, -150), 2)
-        if self.saveData:
-            logging.info(f'Lenspair width: {self.lenspair.width}')
-            logging.info(f'Face width: {self.faceFeatures.width}')
-            logging.info(f'ratio: {ratio}')
-            logging.info(f'frameWidthScore: {frameWidthScore}')
-            logging.info(f'')
+        frameWidthScore = max(round(self.parabola_score(ratio, 1, -150), 2), 0)
+
+        logging.info(f'Lenspair width: {self.lenspair.width}')
+        logging.info(f'Face width: {self.faceFeatures.width}')
+        logging.info(f'ratio: {ratio}')
+        logging.info(f'frameWidthScore: {frameWidthScore}')
+        logging.info(f'')
         return frameWidthScore, round(ratio, 2)
     
     def calculate_eyebrows_match_score(self):
         leftEyebrowScore = self.calculate_single_eyebrow_score('Left')
         rightEyebrowScore = self.calculate_single_eyebrow_score('Right')
         eyebrowsMatchScore = round((leftEyebrowScore + rightEyebrowScore) / 2, 2)
-        if self.saveData:
-            logging.info(f'leftEyebrowScore: {leftEyebrowScore}')
-            logging.info(f'rightEyebrowScore: {rightEyebrowScore}')
-            logging.info(f'eyebrowsMatchScore: {eyebrowsMatchScore}')
-            logging.info('')
+
+        logging.info(f'leftEyebrowScore: {leftEyebrowScore}')
+        logging.info(f'rightEyebrowScore: {rightEyebrowScore}')
+        logging.info(f'eyebrowsMatchScore: {eyebrowsMatchScore}')
+        logging.info('')
         return eyebrowsMatchScore, round(leftEyebrowScore, 2), round(rightEyebrowScore, 2)
     
     def calculate_single_eyebrow_score(self, chirality):
@@ -206,11 +217,11 @@ class Score:
         leftCheekLineScore = self.calculate_single_cheek_line_score('Left')
         rightCheekLineScore = self.calculate_single_cheek_line_score('Right')
         lowerCheekLineScore = round((leftCheekLineScore + rightCheekLineScore) / 2, 2)
-        if self.saveData:
-            logging.info(f'leftCheekLineScore: {leftCheekLineScore}')
-            logging.info(f'rightCheekLineScore: {rightCheekLineScore}')
-            logging.info(f'lowerCheekLineScore: {lowerCheekLineScore}')
-            logging.info('')
+
+        logging.info(f'leftCheekLineScore: {leftCheekLineScore}')
+        logging.info(f'rightCheekLineScore: {rightCheekLineScore}')
+        logging.info(f'lowerCheekLineScore: {lowerCheekLineScore}')
+        logging.info('')
         return lowerCheekLineScore, round(leftCheekLineScore, 2), round(rightCheekLineScore, 2)
     
     def calculate_single_cheek_line_score(self, chirality):
@@ -261,16 +272,16 @@ class Score:
             ellipticalityWeight = min(m * face_circularity + n, 1)
 
         frameShapeScore = round(max(10 - circularityPanelty * (1 - aspectRatioWeight * ellipticalityWeight), 0), 2)
-        if self.saveData:
-            logging.info(f'faceAspectRatio: {faceAspectRatio}')
-            logging.info(f'face_circularity: {face_circularity}')
-            logging.info(f'leftLens_circularity: {leftLens_circularity}')
-            logging.info(f'rightLens_circularity: {rightLens_circularity}')
-            logging.info(f'circularityPanelty: {circularityPanelty}')
-            logging.info(f'aspectRatioWeight: {aspectRatioWeight}')
-            logging.info(f'ellipticalityWeight: {ellipticalityWeight}')
-            logging.info(f'frameShapeScore: {frameShapeScore}')
-            logging.info('')
+
+        logging.info(f'faceAspectRatio: {faceAspectRatio}')
+        logging.info(f'face_circularity: {face_circularity}')
+        logging.info(f'leftLens_circularity: {leftLens_circularity}')
+        logging.info(f'rightLens_circularity: {rightLens_circularity}')
+        logging.info(f'circularityPanelty: {circularityPanelty}')
+        logging.info(f'aspectRatioWeight: {aspectRatioWeight}')
+        logging.info(f'ellipticalityWeight: {ellipticalityWeight}')
+        logging.info(f'frameShapeScore: {frameShapeScore}')
+        logging.info('')
         return frameShapeScore, round(circularityPanelty, 2), round(faceAspectRatio, 2), round(face_circularity, 2),\
                 face_circleCenter, face_circleRadius, leftLens_circleCenter, leftLens_circleRadius, rightLens_circleCenter, rightLens_circleRadius
     
@@ -278,19 +289,18 @@ class Score:
         ratio = self.lenspair.DBL / self.faceFeatures.noseWidth
         if ratio <= 1:
             DBLScore = 10
-        elif ratio >= 1.5:
+        elif ratio >= 2:
             DBLScore = 0
         else:
-            m = -10/0.5
+            m = -10 / 1
             n = 10 - m * 1
             DBLScore = round(m * ratio + n, 2)
 
-        if self.saveData:
-            logging.info(f'DBL: {self.lenspair.DBL}')
-            logging.info(f'Face nose width: {self.faceFeatures.noseWidth}')
-            logging.info(f'ratio: {ratio}')
-            logging.info(f'DBL: {DBLScore}')
-            logging.info(f'')
+        logging.info(f'DBL: {self.lenspair.DBL}')
+        logging.info(f'Face nose width: {self.faceFeatures.noseWidth}')
+        logging.info(f'ratio: {ratio}')
+        logging.info(f'DBL: {DBLScore}')
+        logging.info(f'')
         return DBLScore, round(ratio, 2)
             
     def calculate_frame_color_score(self):
@@ -302,25 +312,45 @@ class Score:
         else:
             m = 10/100
             n = 0
-            frameColorScore = round(m * diff + n, 2)
+            frameColorScore = max(round(m * diff + n, 2), 0)
 
-        if self.saveData:
-            logging.info(f'diff: {diff}')
-            logging.info(f'frameColorScore: {frameColorScore}')
-            logging.info(f'')
+        logging.info(f'diff: {diff}')
+        logging.info(f'frameColorScore: {frameColorScore}')
+        logging.info(f'')
         return frameColorScore, round(diff, 2)
     
+    def calculate_frame_area_score(self):
+        ratio = self.lenspair.frameArea / self.faceFeatures.faceArea
+        if ratio >= 0.16 and ratio <= 0.18:
+            frameAreaScore = 10
+        elif ratio < 0.16:
+            m = 10/0.04
+            n = 10 - m * 0.16
+            frameAreaScore = max(round(m * ratio + n, 2), 0)
+        else:
+            m = -10/0.06
+            n = 10 - m * 0.18
+            frameAreaScore = max(round(m * ratio + n, 2), 0)
+
+        logging.info(f'Lenspair area: {self.lenspair.frameArea}')
+        logging.info(f'Face area: {self.faceFeatures.faceArea}')
+        logging.info(f'ratio: {ratio}')
+        logging.info(f'frameAreaScore: {frameAreaScore}')
+        logging.info(f'')
+        return frameAreaScore, round(ratio, 3)
+
     def get_weights(self):
-        defaultWeights = {"frameWidth": 0.3, "eyebrowsMatch": 0.25, "lowerCheekLine": 0.05, "frameShape": 0.2, "DBL": 0.1, "frameColor": 0.1}
+        defaultWeights = {"frameWidth": 0.3, "eyebrowsMatch": 0.2, "lowerCheekLine": 0.05, "frameShape": 0.1, "DBL": 0.1, "frameColor": 0.1, "frameArea": 0.15}
         w_frameWidth_factored = defaultWeights["frameWidth"] * 10 / max(self.frameWidth, 2)
         w_eyebrowsMatch_factored = defaultWeights["eyebrowsMatch"] * 10 / max(self.eyebrowsMatch, 2)
         w_lowerCheekLine_factored = defaultWeights["lowerCheekLine"]
         w_frameShape_factored = defaultWeights["frameShape"] * 10 / max(self.frameShape, 2)
         w_DBL_factored = defaultWeights["DBL"]
         w_frameColor_factored = defaultWeights["frameColor"]
+        w_frameArea_factored = defaultWeights["frameArea"] * 10 / max(self.frameArea, 2)
 
         factoredWeights = {"frameWidth": w_frameWidth_factored, "eyebrowsMatch": w_eyebrowsMatch_factored, "lowerCheekLine": w_lowerCheekLine_factored, \
-                           "frameShape": w_frameShape_factored, "DBL": w_DBL_factored, "frameColor": w_frameColor_factored}
+                           "frameShape": w_frameShape_factored, "DBL": w_DBL_factored, "frameColor": w_frameColor_factored, "frameArea": w_frameArea_factored}
         weights = normalize(factoredWeights)
         return weights
 
@@ -347,16 +377,16 @@ class Score:
     def double_parabola_score(self, x, y, desiredX, desiredY, a1, a2, w1, w2):
         score1 = self.parabola_score(x, desiredX, a1)
         score2 = self.parabola_score(y, desiredY, a2)
-        score = w1 * score1 + w2 * score2
+        score = max(w1 * score1 + w2 * score2, 0)
         return score
 
     def get_total_score(self):
         totalScore = round(self.W["frameWidth"] * self.frameWidth + self.W["eyebrowsMatch"] * self.eyebrowsMatch + self.W["lowerCheekLine"] * self.lowerCheekLine + \
-                           self.W["frameShape"] * self.frameShape + self.W["DBL"] * self.DBL + self.W["frameColor"] * self.frameColor, 2)
-        if self.saveData:
-            logging.info(f'totalScore: {totalScore}')
-            logging.info('########################################################')
-            logging.info('')
+                           self.W["frameShape"] * self.frameShape + self.W["DBL"] * self.DBL + self.W["frameColor"] * self.frameColor + self.W["frameArea"] * self.frameArea, 2)
+
+        logging.info(f'totalScore: {totalScore}')
+        logging.info('########################################################')
+        logging.info('')
         return totalScore
 
 class State(Enum):

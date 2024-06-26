@@ -2,76 +2,47 @@ import numpy as np
 import cv2
 import PySimpleGUI as sg
 import os.path
-import mediapipe as mp
-from PIL import Image
-import io
 from win32api import GetSystemMetrics
-from SmartMiObjects import FaceFeatures, Lenspair, Score, State
+from SmartMiObjects import State
 import configparser
 from DBMonitor import DBMonitor
-from LensContourFinder import LensContourFinder
-from FaceFeatureExtractor import FaceFeatureExtractor
+from ScoringSystem import ScoringSystem
+
 
 ### Spark4 Monitor ###
-def my_callback(row):
+def my_callback(image):
+    global Images, AnnotatedImages, NumOfImages, MaxNumOfImages
     try:
-        # Convert the binary data to an image
-        raw_image = Image.open(io.BytesIO(row[0]))
-        image = cv2.cvtColor(np.array(raw_image), cv2.COLOR_RGB2BGR)
-    except Exception as err:
-        window["-OUTPUT-"].update(err)
-        return
-    
-    #get frame contours
-    cf = LensContourFinder(BasePath)
-    leftContour, rightContour = cf.get_frame_contours(image)
-                                        
-    leftPupil = np.array([np.mean(leftContour[:,0]), np.mean(leftContour[:,1])])
-    rightPupil = np.array([np.mean(rightContour[:,0]), np.mean(rightContour[:,1])])
-    symmetryLine = np.array([[int((leftPupil[0]+rightPupil[0])/2)-1, int((leftPupil[1]+rightPupil[1])/2)+20], [int((leftPupil[0]+rightPupil[0])/2), int((leftPupil[1]+rightPupil[1])/2)-20]])
-    lenspair = Lenspair(leftContour, rightContour, symmetryLine, leftPupil, rightPupil)
-
-    # Process the frame with MediaPipe Face Detection
-    rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-    results_mesh = ffe.get_face_mesh(rgb_image)
-
-    if results_mesh.multi_face_landmarks:
-        face_landmarks = results_mesh.multi_face_landmarks[0]
-        faceFeatures = FaceFeatures(rgb_image, face_landmarks, image.shape)
-
-    #x, y, w, h = detect_face_location(image)
-    #cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 4)
-    #cv2.circle(image, (x, y), 10, (0, 255, 255), -1)
-    
-    if Debug:
-        score = Score(faceFeatures, lenspair, 1)
-        display_detailed_score(score)
-        imageDebugMode = plot_features_debug_mode(image, lenspair, face_landmarks, faceFeatures)
-        #faceDebugMode = centerize_face(imageDebugMode)
-
-        cv2.putText(imageDebugMode, f'{score.total}', (100,100), cv2.FONT_HERSHEY_SIMPLEX, 4, (155, 0, 0), 5, cv2.LINE_AA)
-        imgbytes = cv2.imencode('.png', imageDebugMode)[1].tobytes()                 # Convert the frame to a format that PySimpleGUI can display
-        idx = get_index_for_display()
-        set_image_for_display(imageDebugMode, idx)
-    else:
-        score = Score(faceFeatures, lenspair, 0)
-        #face = centerize_face(image)
+        scs = ScoringSystem(image, BasePath)
+        score = scs.calculate_score()
+        annotatedImage = scs.get_annotated_image()
 
         cv2.putText(image, f'{score.total}', (100,100), cv2.FONT_HERSHEY_SIMPLEX, 4, (155, 0, 0), 5, cv2.LINE_AA)
-        imgbytes = cv2.imencode('.png', image)[1].tobytes()                 # Convert the frame to a format that PySimpleGUI can display
+        cv2.putText(annotatedImage, f'{score.total}', (100,100), cv2.FONT_HERSHEY_SIMPLEX, 4, (155, 0, 0), 5, cv2.LINE_AA)
         idx = get_index_for_display()
-        set_image_for_display(image, idx)
+        Images[f'{idx}'] = image
+        AnnotatedImages[f'{idx}'] = annotatedImage
 
-    global NumOfImages
-    global MaxNumOfImages
+        if Debug:
+            display_detailed_score(score)
+
+        if DisplayAnnotations:
+            set_image_for_display(annotatedImage, idx)
+        else:
+            set_image_for_display(image, idx)
+
+    except Exception as err:
+        window["-OUTPUT-"].update(err)
+                                        
     NumOfImages = min(NumOfImages + 1, MaxNumOfImages)
-
     for i in range(MaxNumOfImages):
         window[f'-GRAPH{i}-'].draw_image(data=Images4Display[f'{i}'], location=(0, 0))
-    window["-OUTPUT-"].update('Image was loaded.')
+    #window["-OUTPUT-"].update('Image was loaded.')
+
 
 ### Description ###
 # SmartMi enables to display multiple images taken from a video stream simultaneously, in order to compare shown features.
+
 
 ### Functions ###
 def create_splash_screen_layout_window():
@@ -104,8 +75,7 @@ def create_app_layout():
     backgroundColor = '#{:02x}{:02x}{:02x}'.format(*BackgroundColor)
     horizontalPedding = 40
     buttonsFrame = sg.Frame(layout=[
-        [sg.Text("Enter image ID:"), sg.InputText(size=(20,1), key="-IMAGE_ID-")],
-        [sg.Button("Get Image", size=(12, 2), font=ButtonFont, button_color=('darkred', 'salmon'), key="-GET_IMAGE-", pad=(0, 10))],
+        [sg.Button("Show\Hide annotations", size=(12, 2), font=ButtonFont, key="-SHOW_HIDE-")],
         [sg.Button("Clear images", size=(12, 2), font=ButtonFont, key="-CLEAR_IMAGES-")],
         [sg.Button("Close", size=(12, 2), font=ButtonFont, key="-CLOSE-")],
         [sg.VStretch()],
@@ -133,86 +103,6 @@ def create_app_layout():
 
     return layout
 
-def draw_landmark_index(image, landmarks, faceFeatures, score, lineWidth):
-    #S = [127, 356, 10, 152, 193, 417, 4, 101, 36, 330, 266, 108, 151, 337]
-    S = [127, 356, 10, 152, 193, 417]
-    for i in S:
-        x, y = int(landmarks.landmark[i].x), int(landmarks.landmark[i].y)
-        cv2.putText(image, str(i), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 0.2, (255, 0, 0), lineWidth, cv2.LINE_AA)
-        cv2.circle(image, (x, y), 10, (0, 255, 0), -1)  # Draw a small circle at the landmark position
-
-    cv2.polylines(image, [np.array(faceFeatures.leftEyebrow)], False, (0,0,255), lineWidth)
-    cv2.polylines(image, [np.array(faceFeatures.rightEyebrow)], False, (0,0,255), lineWidth)
-    cv2.polylines(image, [np.array(faceFeatures.leftUpperCheekLine)], False, (255,255,0), lineWidth)
-    cv2.polylines(image, [np.array(faceFeatures.rightUpperCheekLine)], False, (255,255,0), lineWidth)
-    cv2.polylines(image, [np.array(faceFeatures.leftLowerCheekLine)], False, (255,255,0), lineWidth)
-    cv2.polylines(image, [np.array(faceFeatures.rightLowerCheekLine)], False, (255,255,0), lineWidth)
-    cv2.polylines(image, [np.array(faceFeatures.jawLine)], False, (255,0,255), lineWidth)
-
-    if type(score) != int:
-        cv2.circle(image, tuple(score.face_circleCenter.astype(np.int32)), int(score.face_circleRadius), (76, 230, 150), lineWidth)
-        cv2.circle(image, tuple(score.leftLens_circleCenter.astype(np.int32)), int(score.leftLens_circleRadius), (76, 230, 150), lineWidth)
-        cv2.circle(image, tuple(score.rightLens_circleCenter.astype(np.int32)), int(score.rightLens_circleRadius), (76, 230, 150), lineWidth)
-
-def edit_score_text(score):
-    scoreText = '''\
-    Frame width ratio = {fw0}
-    Frame width score = {fw}
-
-    Left eyebrow score = {em0}
-    Right eyebrow score = {em1}
-    Eyebrows match score = {em}
-
-    Left cheek line score = {lcl0}
-    Right cheek line score = {lcl1}
-    Lower cheek line score = {lcl}
-
-    Circularity panelty = {fs0}
-    Face aspect ratio = {fs1}
-    Face circularity  = {fs2}
-    Frame shape  = {fs}
-
-    Total score = {t}\
-    '''.format(fw0=score.frameWidthRatio, fw=score.frameWidth, em0=score.leftEyebrow, em1=score.rightEyebrow, em=score.eyebrowsMatch,\
-               lcl0=score.leftCheekLine, lcl1=score.rightCheekLine, lcl=score.lowerCheekLine,\
-                fs0=score.circularityPanelty, fs1=score.faceAspectRatio, fs2=score.face_circularity, fs=score.frameShape, t=score.total)
-
-    scoreText = edit_rows(scoreText)
-    return scoreText
-
-def plot_features_debug_mode(face, lenspair, face_landmarks, faceFeatures):
-    imgDebugMode = face.copy()
-    frameColor = (255,255,255)
-    lineWidth = 5
-
-    #cv2.polylines(imgDebugMode, [np.array(lenspair.transformedLeftContour).astype(np.int32)], False, frameColor, lineWidth)
-    #cv2.polylines(imgDebugMode, [np.array(lenspair.transformedRightContour).astype(np.int32)], False, frameColor, lineWidth)
-    cv2.polylines(imgDebugMode, [np.array(lenspair.leftContour).astype(np.int32)], False, frameColor, lineWidth)
-    cv2.polylines(imgDebugMode, [np.array(lenspair.rightContour).astype(np.int32)], False, frameColor, lineWidth)
-
-    draw_landmark_index(imgDebugMode, face_landmarks, faceFeatures, 1, lineWidth)
-    #mp_drawing.draw_landmarks(
-    #     imgDebugMode, face_landmarks,
-    #     mp_face_mesh.FACEMESH_NOSE | mp_face_mesh.FACEMESH_LEFT_EYEBROW | mp_face_mesh.FACEMESH_RIGHT_EYEBROW,
-    #     landmark_drawing_spec=mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=1, circle_radius=0),
-    #     connection_drawing_spec=mp_drawing.DrawingSpec(color=(0, 255, 0), thickness=1))
-    return imgDebugMode
-
-def edit_rows(text):
-    # Split the text into lines
-    lines = text.split('\n')
-
-    lines[1] = f"**{lines[1]}**"
-    lines[5] = f"**{lines[5]}**"
-    lines[9] = f"**{lines[9]}**"
-    lines[14] = f"**{lines[14]}**"
-    lines[16] = f"**{lines[16]}**"
-
-    # Join the lines back together
-    edited_text = '\n'.join(lines)
-
-    return edited_text
-
 def set_clear_image():
     clearImage = np.full((ImageSize[0], ImageSize[1], 3), BackgroundColor[::-1], dtype=np.uint8)
     clearImage = cv2.copyMakeBorder(src=clearImage, top=BorderWidth, bottom=BorderWidth, left=BorderWidth, right=BorderWidth, value=BackgroundColor[::-1], borderType=cv2.BORDER_CONSTANT) 
@@ -221,7 +111,7 @@ def set_clear_image():
 
 def display_detailed_score(score):
     normalFont = 'Courier 9'
-    titleFont = 'Courier 10 bold'
+    titleFont = 'Courier 9 bold'
     window['-OUTPUT_DEBUG-'].update(value='')
     sg.cprint('Frame width ratio = {}'.format(score.frameWidthRatio), font=normalFont)
     sg.cprint('Frame width score = {}'.format(score.frameWidth), font=titleFont)
@@ -245,29 +135,10 @@ def display_detailed_score(score):
     sg.cprint('Frame color diff = {}'.format(score.colorDiff), font=normalFont)
     sg.cprint('Frame color score = {}'.format(score.frameColor), font=titleFont)
     sg.cprint('')
+    sg.cprint('Frame area ratio = {}'.format(score.frameAreaRatio), font=normalFont)
+    sg.cprint('Frame area score = {}'.format(score.frameArea), font=titleFont)
+    sg.cprint('')
     sg.cprint('Total score = {}'.format(score.total), font=titleFont)
-
-    #scoreText = edit_score_text(score)
-    #window["-OUTPUT_DEBUG-"].update(scoreText)
-
-def detect_face_location(img):
-    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-    faceCascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
-    faces = faceCascade.detectMultiScale(gray, scaleFactor=1.3, minNeighbors=3, minSize=(30, 30))
-    if not len(faces):
-        return []
-
-    (x, y, w, h) = faces[0]
-    return x, y, w, h
-
-def centerize_face(img):
-    midY = int(img.shape[0]/2)
-    midX = int(img.shape[1]/2)
-    if img.shape[0] > img.shape[1]:             # Portrait image
-        cropped_image = img[midY-midX:midY+midX, :]
-    elif img.shape[0] < img.shape[1]:           # Landscape image
-        cropped_image = img[:, midX-midY:midX+midY]
-    return cropped_image
 
 def get_index_for_display():
     global IndicesQueue
@@ -293,17 +164,18 @@ def set_image_for_display(img, i):
     img = cv2.resize(img, (ImageSize[1], ImageSize[0]))
     imgBordered = cv2.copyMakeBorder(src=img, top=BorderWidth, bottom=BorderWidth, left=BorderWidth, right=BorderWidth, value=(255,255,255), borderType=cv2.BORDER_CONSTANT) 
     imgbytes = cv2.imencode('.png', imgBordered)[1].tobytes()                 # Convert the images to a format that PySimpleGUI can display
-    #Images4Display.append(imgbytes)
     Images4Display[f'{i}'] = imgbytes
 
 def clear_images():
-    global NumOfImages, IndicesQueue, Images4Display, window
+    global NumOfImages, IndicesQueue, Images, AnnotatedImages, Images4Display, window
     if NumOfImages == 0:
         return
 
     NumOfImages = 0
     IndicesQueue = []
     for i in range(MaxNumOfImages):
+        Images[f'{i}'] = []
+        AnnotatedImages[f'{i}'] = []
         Images4Display[f'{i}'] = []
         window[f'-GRAPH{i}-'].draw_image(data=ClearImage, location=(0, 0))
 
@@ -315,8 +187,11 @@ def read_config(file_path):
     config.read(file_path)
     return config
 
+
 ### Global variables ###
-config = read_config('./Code/config.ini')
+config = read_config('Code/config.ini')
+Images = {"0": [], "1": [], "2": []}
+AnnotatedImages = {"0": [], "1": [], "2": []}
 Images4Display = {"0": [], "1": [], "2": []}
 MaxNumOfImages = len(Images4Display)
 NumOfImages = 0
@@ -333,15 +208,13 @@ BasePath = os.path.abspath(os.path.join(Path, os.pardir))
 IconsPath = os.path.join(os.path.abspath(os.path.join(Path, os.pardir)), 'Icons')
 state = State.SPLASH
 Debug = True
-
+DisplayAnnotations = True
 
 ### Window layout ###
 sg.theme("DarkRed1")
 Shamir_Logo = os.path.join(IconsPath, 'ShamirNewLogo2.png')
 StartIcon = cv2.imread(os.path.join(IconsPath, 'Start.png'))
 window = create_splash_screen_layout_window()
-
-ffe = FaceFeatureExtractor()
 
 # Start Monitoring the Spark4 DB
 db_path = config['spark']['db_path'] #r'C:\ProgramData\Shamir\Spark4\DB\Spark4.db'
@@ -365,69 +238,22 @@ while True:
         event, values = window.read(timeout=20)
 
     if state != State.SPLASH:
-
-        if event == "-GET_IMAGE-":
-            try:
-                imageID = values["-IMAGE_ID-"]
-                if imageID.strip() == "":
-                    raise Exception("Please insert feasible image ID.")
-
-                image = dm.get_image(imageID)
-                if image is None:
-                    raise Exception("Image ID was not found.")
-
-                # Process the frame with MediaPipe Face Detection
-                results_detection = ffe.detect_face(image)
-                cf = LensContourFinder(BasePath)
-                leftContour, rightContour = cf.get_frame_contours(image)
-            except Exception as err:
-                window["-OUTPUT-"].update(err)
-                continue
-                                                
-            leftPupil = np.array([np.mean(leftContour[:,0]), np.mean(leftContour[:,1])])
-            rightPupil = np.array([np.mean(rightContour[:,0]), np.mean(rightContour[:,1])])
-            symmetryLine = np.array([[int((leftPupil[0]+rightPupil[0])/2)-1, int((leftPupil[1]+rightPupil[1])/2)+20], [int((leftPupil[0]+rightPupil[0])/2), int((leftPupil[1]+rightPupil[1])/2)-20]])
-            lenspair = Lenspair(leftContour, rightContour, symmetryLine, leftPupil, rightPupil)
-
-            ## Face detection
-            rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
-            results_mesh = ffe.get_face_mesh(rgb_image)
-
-            if results_mesh.multi_face_landmarks:
-                face_landmarks = results_mesh.multi_face_landmarks[0]
-                faceFeatures = FaceFeatures(rgb_image, face_landmarks, image.shape)
-
-            #x, y, w, h = detect_face_location(image)
-            #cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 4)
-            #cv2.circle(image, (x, y), 10, (0, 255, 255), -1)
             
-            if Debug:
-                score = Score(faceFeatures, lenspair, 1)
-                display_detailed_score(score)
-                imageDebugMode = plot_features_debug_mode(image, lenspair, face_landmarks, faceFeatures)
-                #faceDebugMode = centerize_face(imageDebugMode)
-
-                cv2.putText(imageDebugMode, f'{score.total}', (100,100), cv2.FONT_HERSHEY_SIMPLEX, 4, (155, 0, 0), 5, cv2.LINE_AA)
-                imgbytes = cv2.imencode('.png', imageDebugMode)[1].tobytes()                 # Convert the frame to a format that PySimpleGUI can display
-                idx = get_index_for_display()
-                set_image_for_display(imageDebugMode, idx)
-            else:
-                score = Score(faceFeatures, lenspair, 0)
-                #face = centerize_face(image)
-
-                cv2.putText(image, f'{score.total}', (100,100), cv2.FONT_HERSHEY_SIMPLEX, 4, (155, 0, 0), 5, cv2.LINE_AA)
-                imgbytes = cv2.imencode('.png', image)[1].tobytes()                 # Convert the frame to a format that PySimpleGUI can display
-                idx = get_index_for_display()
-                set_image_for_display(image, idx)
-
-            NumOfImages = min(NumOfImages + 1, MaxNumOfImages)
-
+        if event == "-SHOW_HIDE-":
+            DisplayAnnotations = not DisplayAnnotations
             for i in range(MaxNumOfImages):
-                window[f'-GRAPH{i}-'].draw_image(data=Images4Display[f'{i}'], location=(0, 0))
-            window["-OUTPUT-"].update('Image was loaded.')
-            
-        elif event == "-CLEAR_IMAGES-":
-            clear_images()
+                if len(Images[f'{i}']) > 0:
+                    if DisplayAnnotations:
+                        set_image_for_display(AnnotatedImages[f'{i}'], i)
+                    else:
+                        set_image_for_display(Images[f'{i}'], i)
+                    window[f'-GRAPH{i}-'].draw_image(data=Images4Display[f'{i}'], location=(0, 0))
+
+        if event == "-CLEAR_IMAGES-":
+            ans = sg.popup('Are you sure you want to clear all images?', title='Clear image', background_color='lightgray', text_color='darkred',
+                        custom_text=('Yes', 'No'), icon=os.path.join(IconsPath,'TitleLogo.ico'))
+            if ans == 'Yes':
+                clear_images()
 
         for i in range(MaxNumOfImages):
             if event == f'-GRAPH{i}-':
@@ -435,6 +261,8 @@ while True:
                     ans = sg.popup('Are you sure you want to clear the image?', title='Clear image', background_color='lightgray', text_color='darkred',
                                 custom_text=('Yes', 'No'), icon=os.path.join(IconsPath,'TitleLogo.ico'))
                     if ans == 'Yes':
+                        Images[f'{i}'] = []
+                        AnnotatedImages[f'{i}'] = []
                         Images4Display[f'{i}'] = []
                         window[f'-GRAPH{i}-'].draw_image(data=ClearImage, location=(0, 0))
                         NumOfImages = NumOfImages - 1

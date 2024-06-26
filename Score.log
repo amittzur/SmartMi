@@ -2673,3 +2673,1292 @@ frameColorScore: 6.27
 totalScore: 8.78
 ########################################################
 
+Lenspair width: 1114.1268897306927
+Face width: 1103.6517772717073
+ratio: 1.0094913202467544
+frameWidthScore: 9.99
+
+leftEyebrowScore: 8.010179798825313
+rightEyebrowScore: 9.31661439330401
+eyebrowsMatchScore: 8.66
+
+leftCheekLineScore: 0
+rightCheekLineScore: 0
+lowerCheekLineScore: 0.0
+
+faceAspectRatio: 1.2290138768336336
+face_circularity: 0.6386643213826562
+leftLens_circularity: 0.7688362072734942
+rightLens_circularity: 0.7928264089009199
+circularityPanelty: 4.289165066477246
+aspectRatioWeight: 0.9160555073345344
+ellipticalityWeight: 0.8466608034566403
+frameShapeScore: 9.04
+
+DBL: 177.944401060646
+Face nose width: 122.97770635041265
+ratio: 1.4469647088197535
+DBL: 1.06
+
+diff: 109.7449457833936
+frameColorScore: 10
+
+totalScore: 8.12
+########################################################
+
+Lenspair width: 908.1662423794593
+Face width: 937.5069808239915
+ratio: 0.968703445366621
+frameWidthScore: 9.85
+
+leftEyebrowScore: 8.5169109948306
+rightEyebrowScore: 9.566516668059368
+eyebrowsMatchScore: 9.04
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.2701024014817957
+face_circularity: 0.6959992924234918
+leftLens_circularity: 0.8002280888181968
+rightLens_circularity: 0.7723712645409945
+circularityPanelty: 4.548498078719481
+aspectRatioWeight: 1
+ellipticalityWeight: 0.9899982310587294
+frameShapeScore: 9.95
+
+DBL: 149.12840465293164
+Face nose width: 102.59621418597244
+ratio: 1.4535468568324752
+DBL: 0.93
+
+diff: 179.29675994005024
+frameColorScore: 10
+
+totalScore: 8.57
+########################################################
+
+Lenspair width: 999.3627479230402
+Face width: 1014.7663879763837
+ratio: 0.98482050624079
+frameWidthScore: 9.97
+
+leftEyebrowScore: 7.33909505418805
+rightEyebrowScore: 8.999461495352499
+eyebrowsMatchScore: 8.17
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.2628002949265529
+face_circularity: 0.7116252822857536
+leftLens_circularity: 0.7795715665049057
+rightLens_circularity: 0.7816060813862562
+circularityPanelty: 4.655182291700863
+aspectRatioWeight: 1
+ellipticalityWeight: 1
+frameShapeScore: 10.0
+
+DBL: 160.1249687634213
+Face nose width: 108.92515905714527
+ratio: 1.4700457649037275
+DBL: 0.6
+
+diff: 142.2631804087059
+frameColorScore: 10
+
+totalScore: 8.34
+########################################################
+
+Lenspair width: 855.7326253253532
+Face width: 875.0213769781774
+ratio: 0.9779562509439067
+frameWidthScore: 9.93
+
+leftEyebrowScore: 7.3602233999883016
+rightEyebrowScore: 9.058228499428608
+eyebrowsMatchScore: 8.21
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.253622388704113
+face_circularity: 0.6343552849816076
+leftLens_circularity: 0.8067657468446164
+rightLens_circularity: 0.7899191294026127
+circularityPanelty: 4.180064234289965
+aspectRatioWeight: 1
+ellipticalityWeight: 0.835888212454019
+frameShapeScore: 9.31
+
+DBL: 138.68166874796668
+Face nose width: 98.81199250712613
+ratio: 1.403490256893314
+DBL: 1.93
+
+diff: 170.1826684036891
+frameColorScore: 10
+
+totalScore: 8.35
+########################################################
+
+Lenspair width: 917.1634311971325
+Face width: 921.6573642728521
+ratio: 0.9951240740323655
+frameWidthScore: 10.0
+
+leftEyebrowScore: 6.792748504272354
+rightEyebrowScore: 8.043376864709785
+eyebrowsMatchScore: 7.42
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.2638044769592633
+face_circularity: 0.6510111848523648
+leftLens_circularity: 0.7922604908443389
+rightLens_circularity: 0.7757136034978639
+circularityPanelty: 4.335120688406317
+aspectRatioWeight: 1
+ellipticalityWeight: 0.877527962130912
+frameShapeScore: 9.47
+
+DBL: 149.6032562849757
+Face nose width: 103.92782178000024
+ratio: 1.439491886991181
+DBL: 1.21
+
+diff: 192.17082244711344
+frameColorScore: 10
+
+totalScore: 8.08
+########################################################
+
+Lenspair width: 858.4567741618154
+Face width: 869.2025303509106
+ratio: 0.9876372239911025
+frameWidthScore: 9.98
+
+leftEyebrowScore: 9.162058329728497
+rightEyebrowScore: 9.577362127730444
+eyebrowsMatchScore: 9.37
+
+leftCheekLineScore: 10
+rightCheekLineScore: 10
+lowerCheekLineScore: 10.0
+
+faceAspectRatio: 1.262385741496866
+face_circularity: 0.6559533497257444
+leftLens_circularity: 0.8088339670459692
+rightLens_circularity: 0.787393162761171
+circularityPanelty: 4.289198924110871
+aspectRatioWeight: 1
+ellipticalityWeight: 0.889883374314361
+frameShapeScore: 9.53
+
+DBL: 139.70634858553512
+Face nose width: 96.46411519653074
+ratio: 1.4482727416397798
+DBL: 1.03
+
+diff: 137.61182952420916
+frameColorScore: 10
+
+totalScore: 8.86
+########################################################
+
+Lenspair width: 897.819475239135
+Face width: 912.0417077223224
+ratio: 0.9844061599784674
+frameWidthScore: 9.96
+
+leftEyebrowScore: 7.0055952111070905
+rightEyebrowScore: 7.951496043887909
+eyebrowsMatchScore: 7.48
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.2512649349241114
+face_circularity: 0.6342737721588361
+leftLens_circularity: 0.7783106219899101
+rightLens_circularity: 0.7759534487369842
+circularityPanelty: 4.285708683976944
+aspectRatioWeight: 1
+ellipticalityWeight: 0.8356844303970901
+frameShapeScore: 9.3
+
+DBL: 129.05967515128862
+Face nose width: 100.2246269877267
+ratio: 1.28770422031197
+DBL: 4.25
+
+diff: 153.6821496628675
+frameColorScore: 10
+
+totalScore: 8.34
+########################################################
+
+Lenspair width: 1031.0778385053377
+Face width: 1029.252739904814
+ratio: 1.0017732268564983
+frameWidthScore: 10.0
+
+leftEyebrowScore: 6.399925876125478
+rightEyebrowScore: 6.5266903639119835
+eyebrowsMatchScore: 6.46
+
+leftCheekLineScore: 0
+rightCheekLineScore: 0
+lowerCheekLineScore: 0.0
+
+faceAspectRatio: 1.2631068307482767
+face_circularity: 0.6775435114545004
+leftLens_circularity: 0.7726693102107249
+rightLens_circularity: 0.7611255909465497
+circularityPanelty: 4.553230304379316
+aspectRatioWeight: 1
+ellipticalityWeight: 0.9438587786362511
+frameShapeScore: 9.74
+
+DBL: 150.67792050486423
+Face nose width: 115.3584141545283
+ratio: 1.3061719130693292
+DBL: 3.88
+
+diff: 155.84993784086024
+frameColorScore: 10
+
+totalScore: 7.78
+########################################################
+
+Lenspair width: 885.0984499385917
+Face width: 885.7695798849458
+ratio: 0.9992423199423475
+frameWidthScore: 10.0
+
+leftEyebrowScore: 6.923429847915869
+rightEyebrowScore: 8.678590276553889
+eyebrowsMatchScore: 7.8
+
+leftCheekLineScore: 10
+rightCheekLineScore: 10
+lowerCheekLineScore: 10.0
+
+faceAspectRatio: 1.2852235882127336
+face_circularity: 0.6650957947565869
+leftLens_circularity: 0.7754655432184795
+rightLens_circularity: 0.7918510368821418
+circularityPanelty: 4.407187523531381
+aspectRatioWeight: 1
+ellipticalityWeight: 0.9127394868914671
+frameShapeScore: 9.62
+
+DBL: 122.56170544963584
+Face nose width: 107.2222304235139
+ratio: 1.1430624504408553
+DBL: 7.14
+
+diff: 146.7202376122667
+frameColorScore: 10
+
+totalScore: 9.01
+########################################################
+
+Lenspair width: 1027.5039551694285
+Face width: 1047.9068571601451
+ratio: 0.9805298516263087
+frameWidthScore: 9.94
+
+leftEyebrowScore: 6.460996629989758
+rightEyebrowScore: 8.094886127234851
+eyebrowsMatchScore: 7.28
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.2590382658385562
+face_circularity: 0.7154690758613393
+leftLens_circularity: 0.7645743206683623
+rightLens_circularity: 0.7569851307094794
+circularityPanelty: 4.773446750862092
+aspectRatioWeight: 1
+ellipticalityWeight: 1
+frameShapeScore: 10.0
+
+DBL: 149.72821724077664
+Face nose width: 118.15626693630942
+ratio: 1.2672050422978043
+DBL: 4.66
+
+diff: 109.39849747597084
+frameColorScore: 10
+
+totalScore: 8.41
+########################################################
+
+Lenspair width: 911.9150710534898
+Face width: 911.3621629972222
+ratio: 1.0006066831373044
+frameWidthScore: 10.0
+
+leftEyebrowScore: 6.92633041441592
+rightEyebrowScore: 7.66105940685329
+eyebrowsMatchScore: 7.29
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.2784184001451973
+face_circularity: 0.6699679803700977
+leftLens_circularity: 0.8004385956673936
+rightLens_circularity: 0.7797091952424415
+circularityPanelty: 4.399470424575901
+aspectRatioWeight: 1
+ellipticalityWeight: 0.9249199509252444
+frameShapeScore: 9.67
+
+DBL: 134.50797282421297
+Face nose width: 107.59171074169532
+ratio: 1.2501704071528135
+DBL: 5.0
+
+diff: 193.10562200516068
+frameColorScore: 10
+
+totalScore: 8.41
+########################################################
+
+Lenspair width: 853.0834530623715
+Face width: 889.0388821802393
+ratio: 0.9595569666990353
+frameWidthScore: 9.75
+
+leftEyebrowScore: 7.25904275694665
+rightEyebrowScore: 7.523674408793385
+eyebrowsMatchScore: 7.39
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.2537794559735955
+face_circularity: 0.6605866478375065
+leftLens_circularity: 0.7902147458337304
+rightLens_circularity: 0.7765199185111457
+circularityPanelty: 4.3860965783253425
+aspectRatioWeight: 1
+ellipticalityWeight: 0.9014666195937664
+frameShapeScore: 9.57
+
+DBL: 123.91128377228677
+Face nose width: 99.80350757752434
+ratio: 1.241552394098336
+DBL: 5.17
+
+diff: 136.65616067342154
+frameColorScore: 10
+
+totalScore: 8.39
+########################################################
+
+Lenspair width: 890.4717710380355
+Face width: 935.2417673071349
+ratio: 0.9521300290105662
+frameWidthScore: 9.66
+
+leftEyebrowScore: 7.074443812442064
+rightEyebrowScore: 7.895653978693781
+eyebrowsMatchScore: 7.49
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.2638795933917408
+face_circularity: 0.7099999410474223
+leftLens_circularity: 0.7702487127981864
+rightLens_circularity: 0.7629786455445393
+circularityPanelty: 4.716931309380296
+aspectRatioWeight: 1
+ellipticalityWeight: 1
+frameShapeScore: 10.0
+
+DBL: 131.5089098849885
+Face nose width: 105.5306678816246
+ratio: 1.246167702003972
+DBL: 5.08
+
+diff: 127.34064796835298
+frameColorScore: 10
+
+totalScore: 8.46
+########################################################
+
+Lenspair width: 907.5914219827747
+Face width: 942.1010785042688
+ratio: 0.9633694756232701
+frameWidthScore: 9.8
+
+leftEyebrowScore: 6.017792358005204
+rightEyebrowScore: 7.667131472008506
+eyebrowsMatchScore: 6.84
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.27870182312464
+face_circularity: 0.7120070747451634
+leftLens_circularity: 0.7751996488115467
+rightLens_circularity: 0.7670488315463699
+circularityPanelty: 4.704414172831026
+aspectRatioWeight: 1
+ellipticalityWeight: 1
+frameShapeScore: 10.0
+
+DBL: 131.90878494355184
+Face nose width: 110.43031084401214
+ratio: 1.1944979954813224
+DBL: 6.11
+
+diff: 152.9218039554857
+frameColorScore: 10
+
+totalScore: 8.35
+########################################################
+
+Lenspair width: 957.9756793617439
+Face width: 1021.3605061420769
+ratio: 0.937940789369512
+frameWidthScore: 9.42
+
+leftEyebrowScore: 5.623586354224846
+rightEyebrowScore: 7.483514441152728
+eyebrowsMatchScore: 6.55
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.3198997041520375
+face_circularity: 0.7621340052041068
+leftLens_circularity: 0.7001833253202174
+rightLens_circularity: 0.7614171436898836
+circularityPanelty: 4.843331146504719
+aspectRatioWeight: 1
+ellipticalityWeight: 1
+frameShapeScore: 10.0
+
+DBL: 137.00719194023327
+Face nose width: 108.15725749477086
+ratio: 1.2667406248430184
+DBL: 4.67
+
+diff: 124.92879221780701
+frameColorScore: 10
+
+totalScore: 8.01
+########################################################
+
+Lenspair width: 912.115008582771
+Face width: 925.3359103355699
+ratio: 0.9857123217578313
+frameWidthScore: 9.97
+
+leftEyebrowScore: 6.075700508209179
+rightEyebrowScore: 6.632491789834063
+eyebrowsMatchScore: 6.35
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.2744238798566505
+face_circularity: 0.7033938369173589
+leftLens_circularity: 0.7885090123685525
+rightLens_circularity: 0.7787577528117097
+circularityPanelty: 4.5988022716361385
+aspectRatioWeight: 1
+ellipticalityWeight: 1
+frameShapeScore: 10.0
+
+DBL: 133.35833203084337
+Face nose width: 102.19711113888455
+ratio: 1.3049129329067934
+DBL: 3.9
+
+diff: 161.23207264685274
+frameColorScore: 10
+
+totalScore: 7.99
+########################################################
+
+Lenspair width: 859.0066023673397
+Face width: 894.6983010001882
+ratio: 0.9601075596176404
+frameWidthScore: 9.76
+
+leftEyebrowScore: 4.866897892686451
+rightEyebrowScore: 5.78775631543284
+eyebrowsMatchScore: 5.33
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.2740908287790007
+face_circularity: 0.7183424110009806
+leftLens_circularity: 0.8021920057512419
+rightLens_circularity: 0.7884593683527823
+circularityPanelty: 4.615083619744842
+aspectRatioWeight: 1
+ellipticalityWeight: 1
+frameShapeScore: 10.0
+
+DBL: 124.76101827173363
+Face nose width: 93.98403661584543
+ratio: 1.3274703105346222
+DBL: 3.45
+
+diff: 211.7605147920641
+frameColorScore: 10
+
+totalScore: 7.42
+########################################################
+
+Lenspair width: 926.8853935584514
+Face width: 948.4154633768884
+ratio: 0.9772989046996577
+frameWidthScore: 9.92
+
+leftEyebrowScore: 5.573965811963137
+rightEyebrowScore: 5.892310260607548
+eyebrowsMatchScore: 5.73
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.2768168174173762
+face_circularity: 0.6631805083613459
+leftLens_circularity: 0.7837490493628497
+rightLens_circularity: 0.7808687276595302
+circularityPanelty: 4.404358099250779
+aspectRatioWeight: 1
+ellipticalityWeight: 0.9079512709033648
+frameShapeScore: 9.59
+
+DBL: 135.00781664741703
+Face nose width: 107.26481735206052
+ratio: 1.2586402511114105
+DBL: 4.83
+
+diff: 139.10714171098476
+frameColorScore: 10
+
+totalScore: 7.71
+########################################################
+
+Lenspair width: 993.1147001329896
+Face width: 1020.7564048892714
+ratio: 0.9729203709877478
+frameWidthScore: 9.89
+
+leftEyebrowScore: 7.591333036348456
+rightEyebrowScore: 8.543571520570238
+eyebrowsMatchScore: 8.07
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.256844600302033
+face_circularity: 0.6447603467513585
+leftLens_circularity: 0.7719048365782631
+rightLens_circularity: 0.7729454337411441
+circularityPanelty: 4.361676057958275
+aspectRatioWeight: 1
+ellipticalityWeight: 0.8619008668783963
+frameShapeScore: 9.4
+
+DBL: 143.0553022010024
+Face nose width: 120.67141870340828
+ratio: 1.1854944918863535
+DBL: 6.29
+
+diff: 162.1194100809647
+frameColorScore: 10
+
+totalScore: 8.72
+########################################################
+
+Lenspair width: 921.0872052092842
+Face width: 936.1823234231407
+ratio: 0.9838758777684871
+frameWidthScore: 9.96
+
+leftEyebrowScore: 6.702131574763286
+rightEyebrowScore: 8.340636021546795
+eyebrowsMatchScore: 7.52
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.2597046899773376
+face_circularity: 0.7053192861238087
+leftLens_circularity: 0.7751424890146854
+rightLens_circularity: 0.7674696991473411
+circularityPanelty: 4.670065960213977
+aspectRatioWeight: 1
+ellipticalityWeight: 1
+frameShapeScore: 10.0
+
+DBL: 134.70791035349453
+Face nose width: 106.18061294837214
+ratio: 1.2686676655275395
+DBL: 4.63
+
+diff: 193.29195857562206
+frameColorScore: 10
+
+totalScore: 8.5
+########################################################
+
+Lenspair width: 966.7479384589751
+Face width: 984.6191692756254
+ratio: 0.9818496009682627
+frameWidthScore: 9.95
+
+leftEyebrowScore: 6.7757449708614415
+rightEyebrowScore: 8.316195435434533
+eyebrowsMatchScore: 7.55
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.2721947301772776
+face_circularity: 0.6373996113270177
+leftLens_circularity: 0.774137158538545
+rightLens_circularity: 0.7697095084351526
+circularityPanelty: 4.327381389200845
+aspectRatioWeight: 1
+ellipticalityWeight: 0.8434990283175443
+frameShapeScore: 9.32
+
+DBL: 142.05561455459406
+Face nose width: 115.01019653857608
+ratio: 1.235156697666772
+DBL: 5.3
+
+diff: 167.39973678294717
+frameColorScore: 10
+
+totalScore: 8.46
+########################################################
+
+Lenspair width: 958.8004216700308
+Face width: 978.6276529105165
+ratio: 0.9797397598754563
+frameWidthScore: 9.94
+
+leftEyebrowScore: 6.706783863613016
+rightEyebrowScore: 7.88065268213199
+eyebrowsMatchScore: 7.29
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.266012572426587
+face_circularity: 0.6269486892110967
+leftLens_circularity: 0.7743938214780459
+rightLens_circularity: 0.7686788440033498
+circularityPanelty: 4.2770617823519945
+aspectRatioWeight: 1
+ellipticalityWeight: 0.8173717230277417
+frameShapeScore: 9.22
+
+DBL: 139.70634858553512
+Face nose width: 114.0416238914227
+ratio: 1.2250469944074753
+DBL: 5.5
+
+diff: 125.9815214624748
+frameColorScore: 10
+
+totalScore: 8.37
+########################################################
+
+Lenspair width: 887.1228174225681
+Face width: 922.9653982248957
+ratio: 0.9611658455763756
+frameWidthScore: 9.77
+
+leftEyebrowScore: 7.178116946522433
+rightEyebrowScore: 7.915893962963568
+eyebrowsMatchScore: 7.55
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.2502064783461262
+face_circularity: 0.7088774313183687
+leftLens_circularity: 0.7775430948358324
+rightLens_circularity: 0.7729105573098989
+circularityPanelty: 4.668253026227515
+aspectRatioWeight: 1
+ellipticalityWeight: 1
+frameShapeScore: 10.0
+
+DBL: 128.85973762200695
+Face nose width: 100.11464405587185
+ratio: 1.2871217676216586
+DBL: 4.26
+
+diff: 191.9378968572908
+frameColorScore: 10
+
+totalScore: 8.43
+########################################################
+
+Lenspair width: 984.59236294736
+Face width: 1020.9278661422464
+ratio: 0.9644093335093433
+frameWidthScore: 9.81
+
+leftEyebrowScore: 6.884629726258538
+rightEyebrowScore: 7.894120817640737
+eyebrowsMatchScore: 7.39
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.27084255519836
+face_circularity: 0.6781867506715356
+leftLens_circularity: 0.7707321883330776
+rightLens_circularity: 0.7600566008926833
+circularityPanelty: 4.563961780293275
+aspectRatioWeight: 1
+ellipticalityWeight: 0.945466876678839
+frameShapeScore: 9.75
+
+DBL: 144.2799195678524
+Face nose width: 110.9648294069314
+ratio: 1.300231076269649
+DBL: 4.0
+
+diff: 158.7693393731926
+frameColorScore: 10
+
+totalScore: 8.32
+########################################################
+
+Lenspair width: 949.3533734114739
+Face width: 969.1395860916057
+ratio: 0.9795837328656374
+frameWidthScore: 9.94
+
+leftEyebrowScore: 6.38245821267823
+rightEyebrowScore: 7.627758585663003
+eyebrowsMatchScore: 7.01
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.2749936802460473
+face_circularity: 0.6949558244242933
+leftLens_circularity: 0.8157121980078381
+rightLens_circularity: 0.7780615105919908
+circularityPanelty: 4.490344850621894
+aspectRatioWeight: 1
+ellipticalityWeight: 0.9873895610607333
+frameShapeScore: 9.94
+
+DBL: 136.13246524962597
+Face nose width: 109.10909684987172
+ratio: 1.2476729180238468
+DBL: 5.05
+
+diff: 192.77229118833444
+frameColorScore: 10
+
+totalScore: 8.34
+########################################################
+
+Lenspair width: 878.3755505164972
+Face width: 916.6558841085988
+ratio: 0.9582391448571487
+frameWidthScore: 9.74
+
+leftEyebrowScore: 6.284206423125552
+rightEyebrowScore: 7.78945266458144
+eyebrowsMatchScore: 7.04
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.2605046128563144
+face_circularity: 0.7410121381214879
+leftLens_circularity: 0.7200591892551909
+rightLens_circularity: 0.7722703489419027
+circularityPanelty: 4.974236845114706
+aspectRatioWeight: 1
+ellipticalityWeight: 1
+frameShapeScore: 10.0
+
+DBL: 129.48454240101205
+Face nose width: 103.47092112324842
+ratio: 1.251409970988639
+DBL: 4.97
+
+diff: 85.8424246803409
+frameColorScore: 8.58
+
+totalScore: 8.18
+########################################################
+
+Lenspair width: 974.095642660075
+Face width: 990.4089057403751
+ratio: 0.9835287597014233
+frameWidthScore: 9.96
+
+leftEyebrowScore: 6.04080139192913
+rightEyebrowScore: 7.2837869019659625
+eyebrowsMatchScore: 6.66
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.2520773442012745
+face_circularity: 0.6718636331246081
+leftLens_circularity: 0.7702551799840804
+rightLens_circularity: 0.767660068632179
+circularityPanelty: 4.514530044082392
+aspectRatioWeight: 1
+ellipticalityWeight: 0.9296590828115201
+frameShapeScore: 9.68
+
+DBL: 143.9800132739299
+Face nose width: 119.18241546019404
+ratio: 1.208064232613393
+DBL: 5.84
+
+diff: 102.72300436124326
+frameColorScore: 10
+
+totalScore: 8.24
+########################################################
+
+Lenspair width: 912.8897665087375
+Face width: 949.24909828932
+ratio: 0.9616967434089669
+frameWidthScore: 9.78
+
+leftEyebrowScore: 6.14904577640829
+rightEyebrowScore: 8.32383983231238
+eyebrowsMatchScore: 7.24
+
+leftCheekLineScore: 0
+rightCheekLineScore: 10
+lowerCheekLineScore: 5.0
+
+faceAspectRatio: 1.2818347328131754
+face_circularity: 0.7318312570964898
+leftLens_circularity: 0.7731610598448542
+rightLens_circularity: 0.7636076604864145
+circularityPanelty: 4.817234484654277
+aspectRatioWeight: 1
+ellipticalityWeight: 1
+frameShapeScore: 10.0
+
+DBL: 134.53296501537318
+Face nose width: 109.10160689040612
+ratio: 1.2330979244926537
+DBL: 5.34
+
+diff: 118.04216672443792
+frameColorScore: 10
+
+totalScore: 8.42
+########################################################
+
+Lenspair width: 879.600167883347
+Face width: 877.6859755380409
+ratio: 1.0021809535513344
+frameWidthScore: 10.0
+
+leftEyebrowScore: 7.22152195663055
+rightEyebrowScore: 8.584845277267515
+eyebrowsMatchScore: 7.9
+
+leftCheekLineScore: 0
+rightCheekLineScore: 0
+lowerCheekLineScore: 0.0
+
+faceAspectRatio: 1.2612058401395074
+face_circularity: 0.7156478194202129
+leftLens_circularity: 0.7957050279525909
+rightLens_circularity: 0.7850652925912273
+circularityPanelty: 4.626313295741519
+aspectRatioWeight: 1
+ellipticalityWeight: 1
+frameShapeScore: 10.0
+
+DBL: 144.00500546509
+Face nose width: 97.62030213797776
+ratio: 1.4751542692579616
+DBL: 0.5
+
+diff: 205.42737463639065
+frameColorScore: 10
+
+totalScore: 8.02
+########################################################
+
+Lenspair width: 997.2634038655831
+Face width: 987.3751030881486
+ratio: 1.0100147357843108
+frameWidthScore: 9.98
+
+leftEyebrowScore: 4.455488667209436
+rightEyebrowScore: 6.469870672347479
+eyebrowsMatchScore: 5.46
+
+leftCheekLineScore: 0
+rightCheekLineScore: 0
+lowerCheekLineScore: 0.0
+
+faceAspectRatio: 1.2771990773434267
+face_circularity: 0.6328580143888722
+leftLens_circularity: 0.7762166272863662
+rightLens_circularity: 0.7620900335910815
+circularityPanelty: 4.318523419750742
+aspectRatioWeight: 1
+ellipticalityWeight: 0.8321450359721805
+frameShapeScore: 9.28
+
+DBL: 158.9503357788916
+Face nose width: 125.33095692054793
+ratio: 1.2682448110537947
+DBL: 4.64
+
+diff: 146.17845472230167
+frameColorScore: 10
+
+totalScore: 7.32
+########################################################
+
+Lenspair width: 880.4499023827939
+Face width: 892.1165003585535
+ratio: 0.9869225622762603
+frameWidthScore: 9.97
+
+leftEyebrowScore: 6.757248908103843
+rightEyebrowScore: 8.42529865914933
+eyebrowsMatchScore: 7.59
+
+leftCheekLineScore: 0
+rightCheekLineScore: 0
+lowerCheekLineScore: 0.0
+
+faceAspectRatio: 1.251023986067087
+face_circularity: 0.6325580307051639
+leftLens_circularity: 0.7899579837423676
+rightLens_circularity: 0.7815980300986849
+circularityPanelty: 4.233900118923188
+aspectRatioWeight: 1
+ellipticalityWeight: 0.8313950767629099
+frameShapeScore: 9.29
+
+DBL: 142.90534905404127
+Face nose width: 103.49084500956562
+ratio: 1.3808501519224485
+DBL: 2.38
+
+diff: 165.8570544173506
+frameColorScore: 10
+
+totalScore: 7.98
+########################################################
+
+Lenspair width: 799.7001327441778
+Face width: 902.5146337131137
+ratio: 0.8860799624423399
+frameWidthScore: 8.05
+
+leftEyebrowScore: 7.001346582453875
+rightEyebrowScore: 8.001119860816125
+eyebrowsMatchScore: 7.5
+
+leftCheekLineScore: 10
+rightCheekLineScore: 10
+lowerCheekLineScore: 10.0
+
+faceAspectRatio: 1.2416435698364379
+face_circularity: 0.6720325524951216
+leftLens_circularity: 0.7283223646525964
+rightLens_circularity: 0.7161297673826343
+circularityPanelty: 4.749032432387531
+aspectRatioWeight: 0.9665742793457515
+ellipticalityWeight: 0.9300813812378039
+frameShapeScore: 9.52
+
+DBL: 119.23774402532877
+Face nose width: 100.53821336848726
+ratio: 1.185994260593283
+DBL: 6.28
+
+diff: 164.69128316337813
+frameColorScore: 10
+
+Lenspair area: 799.7001327441778
+Face area: 902.5146337131137
+ratio: 0.13126777288574978
+frameAreaScore: 0
+
+totalScore: 8.26
+########################################################
+
+Lenspair width: 1046.1231375837801
+Face width: 1046.3926457564287
+ratio: 0.9997424406853952
+frameWidthScore: 10.0
+
+leftEyebrowScore: 7.636999245271896
+rightEyebrowScore: 7.876007140195586
+eyebrowsMatchScore: 7.76
+
+leftCheekLineScore: 0
+rightCheekLineScore: 0
+lowerCheekLineScore: 0.0
+
+faceAspectRatio: 1.2508476094797374
+face_circularity: 0.6493804162689094
+leftLens_circularity: 0.768380570550838
+rightLens_circularity: 0.7552847143239863
+circularityPanelty: 4.437738869157487
+aspectRatioWeight: 1
+ellipticalityWeight: 0.8734510406722735
+frameShapeScore: 9.44
+
+DBL: 167.82256364076375
+Face nose width: 126.04701764610687
+ratio: 1.331428277914096
+DBL: 3.37
+
+diff: 134.1455016949879
+frameColorScore: 10
+
+Lenspair area: 1046.1231375837801
+Face area: 1046.3926457564287
+ratio: 0.18741913576484723
+frameAreaScore: 0
+
+totalScore: 8.15
+########################################################
+
+Lenspair width: 907.9912970413378
+Face width: 924.6313451421652
+ratio: 0.9820035864150064
+frameWidthScore: 9.95
+
+leftEyebrowScore: 6.9776577804277204
+rightEyebrowScore: 8.567427670606074
+eyebrowsMatchScore: 7.77
+
+leftCheekLineScore: 0
+rightCheekLineScore: 0
+lowerCheekLineScore: 0.0
+
+faceAspectRatio: 1.2422897724411406
+face_circularity: 0.6608555389982702
+leftLens_circularity: 0.7973670655728851
+rightLens_circularity: 0.7874387982890715
+circularityPanelty: 4.34226303533646
+aspectRatioWeight: 0.9691590897645623
+ellipticalityWeight: 0.9021388474956755
+frameShapeScore: 9.45
+
+DBL: 146.8041308750328
+Face nose width: 104.85774786757779
+ratio: 1.4000313172892864
+DBL: 2.0
+
+diff: 191.15099561603125
+frameColorScore: 10
+
+Lenspair area: 167510.0
+Face area: 909446.5
+ratio: 0.18418895449045106
+frameAreaScore: 9.3
+
+totalScore: 8.09
+########################################################
+
+Lenspair width: 1008.2349757849122
+Face width: 996.5808198401173
+ratio: 1.011694140317355
+frameWidthScore: 9.98
+
+leftEyebrowScore: 7.128418480736441
+rightEyebrowScore: 8.140689877043517
+eyebrowsMatchScore: 7.63
+
+leftCheekLineScore: 0
+rightCheekLineScore: 0
+lowerCheekLineScore: 0.0
+
+faceAspectRatio: 1.2641480569735803
+face_circularity: 0.6890795936141235
+leftLens_circularity: 0.789117673402364
+rightLens_circularity: 0.7902854648990996
+circularityPanelty: 4.496890122316958
+aspectRatioWeight: 1
+ellipticalityWeight: 0.9726989840353089
+frameShapeScore: 9.88
+
+DBL: 162.84911759988313
+Face nose width: 111.90787520537765
+ratio: 1.4552069485817343
+DBL: 0.9
+
+diff: 155.17595859217369
+frameColorScore: 10
+
+Lenspair area: 209656.5
+Face area: 1065362.0
+ratio: 0.19679367201007733
+frameAreaScore: 7.2
+
+totalScore: 7.65
+########################################################
+
+Lenspair width: 873.6770185783787
+Face width: 975.5200654143322
+ratio: 0.8956012793107462
+frameWidthScore: 8.37
+
+leftEyebrowScore: 7.311213887840692
+rightEyebrowScore: 8.272150212755758
+eyebrowsMatchScore: 7.79
+
+leftCheekLineScore: 10
+rightCheekLineScore: 10
+lowerCheekLineScore: 10.0
+
+faceAspectRatio: 1.2611225441396672
+face_circularity: 0.6748751372302613
+leftLens_circularity: 0.7310278942718251
+rightLens_circularity: 0.7117733173381537
+circularityPanelty: 4.7673726571263595
+aspectRatioWeight: 1
+ellipticalityWeight: 0.9371878430756531
+frameShapeScore: 9.7
+
+DBL: 126.5104716529479
+Face nose width: 111.61295352552975
+ratio: 1.1334748132438819
+DBL: 7.33
+
+diff: 190.20211289572995
+frameColorScore: 10
+
+Lenspair area: 134270.5
+Face area: 1019923.0
+ratio: 0.13164768320745782
+frameAreaScore: 5.27
+
+totalScore: 7.77
+########################################################
+
+Lenspair width: 1262.5055286488184
+Face width: 1304.0331339034221
+ratio: 0.9681544861285102
+frameWidthScore: 9.85
+
+leftEyebrowScore: 8.990357923428977
+rightEyebrowScore: 9.294828773465476
+eyebrowsMatchScore: 9.14
+
+leftCheekLineScore: 10
+rightCheekLineScore: 10
+lowerCheekLineScore: 10.0
+
+faceAspectRatio: 1.2214304580028887
+face_circularity: 0.7088448482918119
+leftLens_circularity: 0.7409741121521116
+rightLens_circularity: 0.7434264364711125
+circularityPanelty: 4.833222869900999
+aspectRatioWeight: 0.885721832011555
+ellipticalityWeight: 1
+frameShapeScore: 9.45
+
+DBL: 176.26992425291235
+Face nose width: 158.08350704526703
+ratio: 1.1150431031520427
+DBL: 8.85
+
+diff: 26.018623138052483
+frameColorScore: 2.6
+
+Lenspair area: 314442.5
+Face area: 1724186.0
+ratio: 0.1823715654807544
+frameAreaScore: 9.6
+
+totalScore: 8.83
+########################################################
+
+Lenspair width: 1089.8344799229753
+Face width: 1261.6921670621211
+ratio: 0.8637879416028077
+frameWidthScore: 7.22
+
+leftEyebrowScore: 9.240131580747047
+rightEyebrowScore: 9.255774192486493
+eyebrowsMatchScore: 9.25
+
+leftCheekLineScore: 10
+rightCheekLineScore: 10
+lowerCheekLineScore: 10.0
+
+faceAspectRatio: 1.223712002955606
+face_circularity: 0.7607511312679163
+leftLens_circularity: 0.6973674124742592
+rightLens_circularity: 0.699095453866712
+circularityPanelty: 4.6874015095128465
+aspectRatioWeight: 0.8948480118224236
+ellipticalityWeight: 1
+frameShapeScore: 9.51
+
+DBL: 157.55077307392014
+Face nose width: 145.76407967390395
+ratio: 1.0808614401187506
+DBL: 9.19
+
+diff: 11.035454227171622
+frameColorScore: 1.1
+
+Lenspair area: 203039.0
+Face area: 1605829.5
+ratio: 0.12643870348626676
+frameAreaScore: 1.61
+
+totalScore: 5.03
+########################################################
+
