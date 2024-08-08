@@ -3,7 +3,8 @@ import cv2
 import PySimpleGUI as sg
 import os.path
 from win32api import GetSystemMetrics
-from SmartMiObjects import State
+from csv import writer
+from SmartMiObjects import Result, State
 import configparser
 from DBMonitor import DBMonitor
 from ScoringSystem import ScoringSystem
@@ -11,7 +12,7 @@ from ScoringSystem import ScoringSystem
 
 ### Spark4 Monitor ###
 def my_callback(image):
-    global Images, AnnotatedImages, NumOfImages, MaxNumOfImages
+    global Results, NumOfImages, MaxNumOfImages
     try:
         scs = ScoringSystem(image, BasePath)
         score = scs.calculate_score()
@@ -20,8 +21,7 @@ def my_callback(image):
         cv2.putText(image, f'{score.total}', (100,100), cv2.FONT_HERSHEY_SIMPLEX, 4, (155, 0, 0), 5, cv2.LINE_AA)
         cv2.putText(annotatedImage, f'{score.total}', (100,100), cv2.FONT_HERSHEY_SIMPLEX, 4, (155, 0, 0), 5, cv2.LINE_AA)
         idx = get_index_for_display()
-        Images[f'{idx}'] = image
-        AnnotatedImages[f'{idx}'] = annotatedImage
+        Results[f'{idx}'] = Result(image, annotatedImage, score, -1)
 
         if Debug:
             display_detailed_score(score)
@@ -59,7 +59,11 @@ def create_app_layout_window():
     global state
     state = State.APP
     window = sg.Window("SmartMi", create_app_layout(), icon=os.path.join(IconsPath,'TitleLogo.ico'), finalize=True, no_titlebar=True)
+    window['-IMAGE0_USER_SCORE-'].widget.configure(justify=sg.tk.CENTER)
+    window['-IMAGE1_USER_SCORE-'].widget.configure(justify=sg.tk.CENTER)
+    window['-IMAGE2_USER_SCORE-'].widget.configure(justify=sg.tk.CENTER)
     window.Maximize()
+
     #for i in range(MaxNumOfImages):
     #    window[f'-GRAPH{i}-'].draw_image(data=ClearImage, location=(0, 0))
     return window
@@ -73,38 +77,46 @@ def create_splash_screen_layout():
 
 def create_app_layout():
     backgroundColor = '#{:02x}{:02x}{:02x}'.format(*BackgroundColor)
-    horizontalPedding = 40
+
     buttonsFrame = sg.Frame(layout=[
-        [sg.Button("Show\Hide annotations", size=(12, 2), font=ButtonFont, key="-SHOW_HIDE-")],
+        [sg.Button("Show \ Hide annotations", size=(12, 2), font=ButtonFont, key="-SHOW_HIDE-")],
         [sg.Button("Clear images", size=(12, 2), font=ButtonFont, key="-CLEAR_IMAGES-")],
+        [sg.Button("Save results", size=(12, 2), font=ButtonFont, key="-SAVE_RESULTS-", pad=(0,10))],
         [sg.Button("Close", size=(12, 2), font=ButtonFont, key="-CLOSE-")],
         [sg.VStretch()],
         [sg.Image(Shamir_Logo, subsample=2)]],
-        title='', size=(350, 350), vertical_alignment='top', element_justification='center', border_width=0, pad=(horizontalPedding, 20))
+        title='', size=(350, 350), vertical_alignment='top', element_justification='center', border_width=0, pad=(80, 20))
 
     if Debug:
         layout = [
             [buttonsFrame, sg.Multiline(default_text='', size=(45,25), key="-OUTPUT_DEBUG-", reroute_cprint=True, no_scrollbar=True,
-                            font='Helvetica 10', justification='c', text_color='white', background_color=backgroundColor, border_width=1, pad=(120, 20)),
-                sg.Multiline(default_text='', size=(45,8), key="-OUTPUT-", no_scrollbar=True,
-                            font='Courier 30 bold', justification='c', text_color='white', background_color=backgroundColor, border_width=-1, pad=(50, 20))],
-            [sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH0-', enable_events=True, visible=True, pad=(horizontalPedding, 0)),
-                sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH1-', enable_events=True, visible=True, pad=(120, 0)),
-                sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH2-', enable_events=True, visible=True, pad=(horizontalPedding, 0))]
+                            font='Helvetica 10', justification='c', text_color='white', background_color=backgroundColor, border_width=0, pad=((180,0), 20)),
+                sg.Multiline(default_text='', size=(35,9), key="-OUTPUT-", no_scrollbar=True,
+                            font='Courier 30 bold', justification='c', text_color='white', background_color=backgroundColor, border_width=0,pad=((30,0), 20))],
+                [sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH0-', enable_events=True, visible=True, pad=((20,0), 0)),
+                sg.Frame(layout=[[sg.Text('User score')], [sg.Listbox(["1","2","3","4","5","6","7","8","9","10"], size=(3, 10), key="-IMAGE0_USER_SCORE-", no_scrollbar=True, enable_events=True)]],
+                        title='', element_justification="center", size=(80,300), border_width=0),
+                sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH1-', enable_events=True, visible=True, pad=((120,0), 0)),
+                sg.Frame(layout=[[sg.Text('User score')], [sg.Listbox(["1","2","3","4","5","6","7","8","9","10"], size=(3, 10), key="-IMAGE1_USER_SCORE-", no_scrollbar=True, enable_events=True)]],
+                        title='', element_justification="center", size=(80,300), border_width=0),
+                sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH2-', enable_events=True, visible=True, pad=((120,0), 0)),
+                sg.Frame(layout=[[sg.Text('User score')], [sg.Listbox(["1","2","3","4","5","6","7","8","9","10"], size=(3, 10), key="-IMAGE2_USER_SCORE-", no_scrollbar=True, enable_events=True)]],
+                        title='', element_justification="center", size=(80,300), border_width=0)]
         ]
     else:
         layout = [
             [buttonsFrame, sg.Multiline(default_text='', size=(45,8), key="-OUTPUT-", no_scrollbar=True,
-                            font='Courier 30 bold', justification='c', text_color='white', background_color=backgroundColor, border_width=1, pad=(horizontalPedding, 0))],
-            [sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH0-', enable_events=True, visible=True, pad=(horizontalPedding, 0)),
+                            font='Courier 30 bold', justification='c', text_color='white', background_color=backgroundColor, border_width=1, pad=(40, 0))],
+            [sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH0-', enable_events=True, visible=True, pad=(40, 0)),
                 sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH1-', enable_events=True, visible=True, pad=(120, 0)),
-                sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH2-', enable_events=True, visible=True, pad=(horizontalPedding, 0))]
+                sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH2-', enable_events=True, visible=True, pad=(40, 0))]
         ]
 
     return layout
 
 def set_clear_image():
-    clearImage = np.full((ImageSize[0], ImageSize[1], 3), BackgroundColor[::-1], dtype=np.uint8)
+    #clearImage = np.full((ImageSize[0], ImageSize[1], 3), BackgroundColor[::-1], dtype=np.uint8)
+    clearImage = np.full((ImageSize[0], ImageSize[1], 3), (193,0,0), dtype=np.uint8)
     clearImage = cv2.copyMakeBorder(src=clearImage, top=BorderWidth, bottom=BorderWidth, left=BorderWidth, right=BorderWidth, value=BackgroundColor[::-1], borderType=cv2.BORDER_CONSTANT) 
     imgbytes = cv2.imencode('.png', clearImage)[1].tobytes()                 # Convert the images to a format that PySimpleGUI can display
     return imgbytes
@@ -132,6 +144,7 @@ def display_detailed_score(score):
     sg.cprint('DBL width ratio = {}'.format(score.DBLWidthRatio), font=normalFont)
     sg.cprint('DBL score = {}'.format(score.DBL), font=titleFont)
     sg.cprint('')
+    sg.cprint('Frame color = {}'.format(score.lenspair.color), font=titleFont)
     sg.cprint('Frame color diff = {}'.format(score.colorDiff), font=normalFont)
     sg.cprint('Frame color score = {}'.format(score.frameColor), font=titleFont)
     sg.cprint('')
@@ -167,17 +180,35 @@ def set_image_for_display(img, i):
     Images4Display[f'{i}'] = imgbytes
 
 def clear_images():
-    global NumOfImages, IndicesQueue, Images, AnnotatedImages, Images4Display, window
+    global NumOfImages, IndicesQueue, Results, Images4Display, window
     if NumOfImages == 0:
         return
 
     NumOfImages = 0
     IndicesQueue = []
     for i in range(MaxNumOfImages):
-        Images[f'{i}'] = []
-        AnnotatedImages[f'{i}'] = []
+        Results[f'{i}'] = []
         Images4Display[f'{i}'] = []
         window[f'-GRAPH{i}-'].draw_image(data=ClearImage, location=(0, 0))
+
+def save_results():
+    global Results, NumOfImages
+    if NumOfImages == 0:
+        return
+
+    with open('FrameFitting.csv', 'a') as f_object:
+        writer_object = writer(f_object)
+    
+        for i in range(MaxNumOfImages):
+            score = Results[f'{i}'].appScore
+            
+            List = [score.frameWidthRatio, score.frameWidth, score.leftEyebrow, score.rightEyebrow, score.eyebrowsMatch, score.leftCheekLine, score.rightCheekLine, score.lowerCheekLine,\
+                    score.circularityPanelty, score.faceAspectRatio, score.face_circularity, score.frameShape, score.DBLWidthRatio, score.DBL,\
+                    score.lenspair.color, score.colorDiff, score.frameColor, score.frameAreaRatio, score.frameArea,\
+                    score.w["frameWidth"], score.w["eyebrowsMatch"], score.w["lowerCheekLine"], score.w["frameShape"], score.w["DBL"], score.w["frameColor"], score.w["frameArea"],\
+                    score.total, Results[f'{i}'].userScore]
+            writer_object.writerow(List)
+        f_object.close()
 
 def read_config(file_path):
     # Initialize the ConfigParser
@@ -190,8 +221,7 @@ def read_config(file_path):
 
 ### Global variables ###
 config = read_config('Code/config.ini')
-Images = {"0": [], "1": [], "2": []}
-AnnotatedImages = {"0": [], "1": [], "2": []}
+Results = {"0": [], "1": [], "2": []}
 Images4Display = {"0": [], "1": [], "2": []}
 MaxNumOfImages = len(Images4Display)
 NumOfImages = 0
@@ -230,7 +260,10 @@ while True:
     elif event == "-START-":
         window.close()
         window = create_app_layout_window()
+        for i in range(3):
+            window[f'-GRAPH{i}-'].draw_image(data=ClearImage, location=(0, 0))
         event, values = window.read(timeout=20)
+        
     elif event == "-CLOSE-":
         clear_images()
         window.close()
@@ -242,11 +275,11 @@ while True:
         if event == "-SHOW_HIDE-":
             DisplayAnnotations = not DisplayAnnotations
             for i in range(MaxNumOfImages):
-                if len(Images[f'{i}']) > 0:
+                if len(Results[f'{i}']) > 0:
                     if DisplayAnnotations:
-                        set_image_for_display(AnnotatedImages[f'{i}'], i)
+                        set_image_for_display(Results[f'{i}'].annotatedImage, i)
                     else:
-                        set_image_for_display(Images[f'{i}'], i)
+                        set_image_for_display(Results[f'{i}'].image, i)
                     window[f'-GRAPH{i}-'].draw_image(data=Images4Display[f'{i}'], location=(0, 0))
 
         if event == "-CLEAR_IMAGES-":
@@ -255,14 +288,38 @@ while True:
             if ans == 'Yes':
                 clear_images()
 
+        if event == "-SAVE_RESULTS-":
+            isMissingData = False
+            for i in range(MaxNumOfImages):
+                print(len(Results[f'{i}']))
+                print(len(values[f'-IMAGE{i}_USER_SCORE-']))
+                if len(Results[f'{i}']) > 0 and len(values[f'-IMAGE{i}_USER_SCORE-']) == 0:
+                    window["-OUTPUT-"].update('Please score the frames fit in all the images before saving.')
+                    isMissingData = True
+                    break
+            
+            if not isMissingData:
+                save_results()
+
+        if event == "-IMAGE0_USER_SCORE-":
+            if len(Results['0']) > 0:
+                Results['0'].userScore = int(values["-IMAGE0_USER_SCORE-"][0])
+
+        if event == "-IMAGE1_USER_SCORE-":
+            if len(Results['1']) > 0:
+                Results['1'].userScore = int(values["-IMAGE1_USER_SCORE-"][0])
+
+        if event == "-IMAGE2_USER_SCORE-":
+            if len(Results['2']) > 0:
+                Results['2'].userScore = int(values["-IMAGE2_USER_SCORE-"][0])
+
         for i in range(MaxNumOfImages):
             if event == f'-GRAPH{i}-':
                 if len(Images4Display[f'{i}']) > 0:
                     ans = sg.popup('Are you sure you want to clear the image?', title='Clear image', background_color='lightgray', text_color='darkred',
                                 custom_text=('Yes', 'No'), icon=os.path.join(IconsPath,'TitleLogo.ico'))
                     if ans == 'Yes':
-                        Images[f'{i}'] = []
-                        AnnotatedImages[f'{i}'] = []
+                        Results[f'{i}'] = []
                         Images4Display[f'{i}'] = []
                         window[f'-GRAPH{i}-'].draw_image(data=ClearImage, location=(0, 0))
                         NumOfImages = NumOfImages - 1

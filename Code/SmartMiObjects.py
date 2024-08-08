@@ -9,7 +9,7 @@ logging.basicConfig(filename='Score.log', level=logging.INFO, format='%(message)
 #logging.basicConfig(level=logging.INFO, format='%(message)s',)
 
 class FaceFeatures:
-    def __init__(self, faceImage, landmarks, imgShape):
+    def __init__(self, faceImage_BGR, landmarks, imgShape):
         for l in landmarks.landmark:
             l.x = l.x * imgShape[1]
             l.y = l.y * imgShape[0]
@@ -20,11 +20,11 @@ class FaceFeatures:
         self.leftUpperCheekLine, self.rightUpperCheekLine, self.leftLowerCheekLine, self.rightLowerCheekLine = self.get_cheek_lines(landmarks.landmark)
         self.jawLine = self.get_jaw_line(landmarks.landmark)
         self.noseWidth = dist2D(landmarks.landmark[193], landmarks.landmark[417])
-        self.skinColor = self.calculate_skin_color(faceImage, landmarks.landmark)
+        self.skinColor = self.calculate_skin_color(faceImage_BGR, landmarks.landmark)
         self.irisWidth = self.calculate_iris_width(landmarks.landmark)
         faceContour = self.jawLine.copy()
         S = [389, 251, 284, 332, 297, 338, 10, 109, 67, 103, 54, 21, 162]
-        print()
+
         for i in S:
             faceContour = np.append(faceContour, [np.array([landmarks.landmark[i].x, landmarks.landmark[i].y]).astype(np.int32)], axis=0)
         self.faceArea = cv2.contourArea(faceContour)
@@ -114,11 +114,14 @@ class FaceFeatures:
         return eyeContoursCompletionLines
 
 class Lenspair:
-    def __init__(self, leftContour, rightContour, symmetryLine, leftPupil, rightPupil):
+    def __init__(self, img_BGR, leftContour, rightContour):
         self.leftContour = leftContour
         self.rightContour = rightContour
-        self.symmetryLine = symmetryLine
-        self.pointOfRotation = intersect_lines(symmetryLine, np.vstack((leftPupil, rightPupil)))
+        self.leftPupil = np.array([np.mean(leftContour[:,0]), np.mean(leftContour[:,1])])
+        self.rightPupil = np.array([np.mean(rightContour[:,0]), np.mean(rightContour[:,1])])
+        self.symmetryLine = np.array([[int((self.leftPupil[0] + self.rightPupil[0])/2)-1, int((self.leftPupil[1] + self.rightPupil[1])/2)+20], \
+                                      [int((self.leftPupil[0] + self.rightPupil[0])/2), int((self.leftPupil[1] + self.rightPupil[1])/2)-20]])
+        self.pointOfRotation = intersect_lines(self.symmetryLine, np.vstack((self.leftPupil, self.rightPupil)))
         self.transformedLeftContour = self.transform_contour(leftContour, self.pointOfRotation)
         self.transformedRightContour = self.transform_contour(rightContour, self.pointOfRotation)
         self.width = max(self.transformedLeftContour[:,0]) - min(self.transformedRightContour[:,0])
@@ -127,7 +130,7 @@ class Lenspair:
         self.rightHeight = max(self.transformedRightContour[:,1]) - min(self.transformedRightContour[:,1])
         self.rightWidth = max(self.transformedRightContour[:,0]) - min(self.transformedRightContour[:,0])
         self.DBL = min(self.transformedLeftContour[:,0]) - max(self.transformedRightContour[:,0])
-        self.color = [100, 100, 100]
+        self.color = self.calculte_color(img_BGR)
         self.leftLensArea = cv2.contourArea(leftContour)
         self.rightLensArea = cv2.contourArea(rightContour)
         self.frameArea = self.leftLensArea + self.rightLensArea
@@ -154,6 +157,35 @@ class Lenspair:
         transformedContour = np.matmul(transformationMatrix, np.transpose(contour))
         return np.transpose(transformedContour)[:,0:-1]
 
+    def calculte_color(self, img):
+        leftLensColor = self.calculte_contour_color(img, 'L')
+        rightLensColor = self.calculte_contour_color(img, 'R')
+        color = np.rint((leftLensColor + rightLensColor) / 2)       # Assuming BGR
+        return color
+
+    def calculte_contour_color(self, img, chiraliry):
+        if chiraliry == 'L':
+            pupil = self.leftPupil
+            contour = self.leftContour
+        else:
+            pupil = self.rightPupil
+            contour = self.rightContour
+
+        d = 5
+        phi = np.arctan((contour[:,0] - pupil[0]) / (contour[:,1] - pupil[1]))
+        phi[contour[:,1] < pupil[1]] = phi[contour[:,1] < pupil[1]] + np.pi
+        extendedContour = np.array(contour + d * np.column_stack((np.sin(phi), np.cos(phi)))).astype(np.int32)
+        #for i in range(extendedContour.shape[0]):
+        #    cv2.circle(img, (extendedContour[i,0], extendedContour[i,1]), 1, (0, 255, 0), -1)
+        #half = cv2.resize(img, (0, 0), fx = 0.4, fy = 0.4)
+        #cv2.imshow("", half)
+        #cv2.waitKey(0)
+        #cv2.destroyAllWindows()
+
+        pixelColors = img[extendedContour[:,1], extendedContour[:,0]]
+        color = np.mean(pixelColors, axis=0)
+        return color
+
 class Score:
     def __init__(self, faceFeatures, lenspair):
         self.faceFeatures = faceFeatures
@@ -166,7 +198,7 @@ class Score:
         self.DBL, self.DBLWidthRatio = self.calculate_DBL_score()
         self.frameColor, self.colorDiff = self.calculate_frame_color_score()
         self.frameArea, self.frameAreaRatio = self.calculate_frame_area_score()
-
+        
         self.W = self.get_weights()
         self.total = self.get_total_score()
 
@@ -287,13 +319,13 @@ class Score:
     
     def calculate_DBL_score(self):
         ratio = self.lenspair.DBL / self.faceFeatures.noseWidth
-        if ratio <= 1:
+        if ratio <= 1.2:
             DBLScore = 10
         elif ratio >= 2:
             DBLScore = 0
         else:
-            m = -10 / 1
-            n = 10 - m * 1
+            m = -10 / 0.8
+            n = 10 - m * 1.2
             DBLScore = round(m * ratio + n, 2)
 
         logging.info(f'DBL: {self.lenspair.DBL}')
@@ -388,6 +420,13 @@ class Score:
         logging.info('########################################################')
         logging.info('')
         return totalScore
+
+class Result:
+    def __init__(self, image, annotatedImage, appScore, userScore):
+        self.image = image
+        self.annotatedImage = annotatedImage
+        self.appScore = appScore
+        self.userScore = userScore
 
 class State(Enum):
     SPLASH = 1

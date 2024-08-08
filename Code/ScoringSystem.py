@@ -15,11 +15,7 @@ class ScoringSystem:
     def calculate_score(self):
         # Get frame contours
         leftContour, rightContour = self.cf.get_frame_contours(self.image)
-
-        leftPupil = np.array([np.mean(leftContour[:,0]), np.mean(leftContour[:,1])])
-        rightPupil = np.array([np.mean(rightContour[:,0]), np.mean(rightContour[:,1])])
-        symmetryLine = np.array([[int((leftPupil[0]+rightPupil[0])/2)-1, int((leftPupil[1]+rightPupil[1])/2)+20], [int((leftPupil[0]+rightPupil[0])/2), int((leftPupil[1]+rightPupil[1])/2)-20]])
-        self.lenspair = Lenspair(leftContour, rightContour, symmetryLine, leftPupil, rightPupil)
+        self.lenspair = Lenspair(self.image, leftContour, rightContour)
 
         # Process the frame with MediaPipe Face Detection
         rgb_image = cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB)
@@ -27,7 +23,7 @@ class ScoringSystem:
 
         if results_mesh.multi_face_landmarks:
             self.face_landmarks = results_mesh.multi_face_landmarks[0]
-            self.faceFeatures = FaceFeatures(rgb_image, self.face_landmarks, self.image.shape)
+            self.faceFeatures = FaceFeatures(self.image, self.face_landmarks, self.image.shape)
 
         #results_detection = self.ffe.detect_face(image)
 
