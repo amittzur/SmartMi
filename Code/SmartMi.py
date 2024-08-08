@@ -30,6 +30,7 @@ def my_callback(image):
             set_image_for_display(annotatedImage, idx)
         else:
             set_image_for_display(image, idx)
+        window[f'-IMAGE{idx}_USER_FRAME-'].update(visible=True)
 
     except Exception as err:
         window["-OUTPUT-"].update(err)
@@ -95,13 +96,13 @@ def create_app_layout():
                             font='Courier 30 bold', justification='c', text_color='white', background_color=backgroundColor, border_width=0,pad=((30,0), 20))],
                 [sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH0-', enable_events=True, visible=True, pad=((20,0), 0)),
                 sg.Frame(layout=[[sg.Text('User score')], [sg.Listbox(["1","2","3","4","5","6","7","8","9","10"], size=(3, 10), key="-IMAGE0_USER_SCORE-", no_scrollbar=True, enable_events=True)]],
-                        title='', element_justification="center", size=(80,300), border_width=0),
+                        title='', element_justification="center", size=(80,300), key="-IMAGE0_USER_FRAME-", border_width=0, visible=False),
                 sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH1-', enable_events=True, visible=True, pad=((120,0), 0)),
                 sg.Frame(layout=[[sg.Text('User score')], [sg.Listbox(["1","2","3","4","5","6","7","8","9","10"], size=(3, 10), key="-IMAGE1_USER_SCORE-", no_scrollbar=True, enable_events=True)]],
-                        title='', element_justification="center", size=(80,300), border_width=0),
+                        title='', element_justification="center", size=(80,300), key="-IMAGE1_USER_FRAME-", border_width=0, visible=False),
                 sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH2-', enable_events=True, visible=True, pad=((120,0), 0)),
                 sg.Frame(layout=[[sg.Text('User score')], [sg.Listbox(["1","2","3","4","5","6","7","8","9","10"], size=(3, 10), key="-IMAGE2_USER_SCORE-", no_scrollbar=True, enable_events=True)]],
-                        title='', element_justification="center", size=(80,300), border_width=0)]
+                        title='', element_justification="center", size=(80,300), key="-IMAGE2_USER_FRAME-", border_width=0, visible=False)]
         ]
     else:
         layout = [
@@ -115,8 +116,7 @@ def create_app_layout():
     return layout
 
 def set_clear_image():
-    #clearImage = np.full((ImageSize[0], ImageSize[1], 3), BackgroundColor[::-1], dtype=np.uint8)
-    clearImage = np.full((ImageSize[0], ImageSize[1], 3), (193,0,0), dtype=np.uint8)
+    clearImage = np.full((ImageSize[0], ImageSize[1], 3), BackgroundColor[::-1], dtype=np.uint8)
     clearImage = cv2.copyMakeBorder(src=clearImage, top=BorderWidth, bottom=BorderWidth, left=BorderWidth, right=BorderWidth, value=BackgroundColor[::-1], borderType=cv2.BORDER_CONSTANT) 
     imgbytes = cv2.imencode('.png', clearImage)[1].tobytes()                 # Convert the images to a format that PySimpleGUI can display
     return imgbytes
@@ -190,6 +190,7 @@ def clear_images():
         Results[f'{i}'] = []
         Images4Display[f'{i}'] = []
         window[f'-GRAPH{i}-'].draw_image(data=ClearImage, location=(0, 0))
+        window[f'-IMAGE{i}_USER_FRAME-'].update(visible=False)
 
 def save_results():
     global Results, NumOfImages
@@ -200,12 +201,13 @@ def save_results():
         writer_object = writer(f_object)
     
         for i in range(MaxNumOfImages):
-            score = Results[f'{i}'].appScore
+            if type(Results[f"{i}"]) != list:
+                score = Results[f'{i}'].appScore
             
             List = [score.frameWidthRatio, score.frameWidth, score.leftEyebrow, score.rightEyebrow, score.eyebrowsMatch, score.leftCheekLine, score.rightCheekLine, score.lowerCheekLine,\
                     score.circularityPanelty, score.faceAspectRatio, score.face_circularity, score.frameShape, score.DBLWidthRatio, score.DBL,\
                     score.lenspair.color, score.colorDiff, score.frameColor, score.frameAreaRatio, score.frameArea,\
-                    score.w["frameWidth"], score.w["eyebrowsMatch"], score.w["lowerCheekLine"], score.w["frameShape"], score.w["DBL"], score.w["frameColor"], score.w["frameArea"],\
+                    score.W["frameWidth"], score.W["eyebrowsMatch"], score.W["lowerCheekLine"], score.W["frameShape"], score.W["DBL"], score.W["frameColor"], score.W["frameArea"],\
                     score.total, Results[f'{i}'].userScore]
             writer_object.writerow(List)
         f_object.close()
@@ -291,9 +293,7 @@ while True:
         if event == "-SAVE_RESULTS-":
             isMissingData = False
             for i in range(MaxNumOfImages):
-                print(len(Results[f'{i}']))
-                print(len(values[f'-IMAGE{i}_USER_SCORE-']))
-                if len(Results[f'{i}']) > 0 and len(values[f'-IMAGE{i}_USER_SCORE-']) == 0:
+                if type(Results[f'{i}']) != list and len(values[f'-IMAGE{i}_USER_SCORE-']) == 0:
                     window["-OUTPUT-"].update('Please score the frames fit in all the images before saving.')
                     isMissingData = True
                     break
@@ -302,15 +302,15 @@ while True:
                 save_results()
 
         if event == "-IMAGE0_USER_SCORE-":
-            if len(Results['0']) > 0:
+            if type(Results["0"]) != list:
                 Results['0'].userScore = int(values["-IMAGE0_USER_SCORE-"][0])
 
         if event == "-IMAGE1_USER_SCORE-":
-            if len(Results['1']) > 0:
+            if type(Results["1"]) != list:
                 Results['1'].userScore = int(values["-IMAGE1_USER_SCORE-"][0])
 
         if event == "-IMAGE2_USER_SCORE-":
-            if len(Results['2']) > 0:
+            if type(Results["2"]) != list:
                 Results['2'].userScore = int(values["-IMAGE2_USER_SCORE-"][0])
 
         for i in range(MaxNumOfImages):
@@ -322,6 +322,7 @@ while True:
                         Results[f'{i}'] = []
                         Images4Display[f'{i}'] = []
                         window[f'-GRAPH{i}-'].draw_image(data=ClearImage, location=(0, 0))
+                        window[f'-IMAGE{i}_USER_FRAME-'].update(visible=False)
                         NumOfImages = NumOfImages - 1
                         IndicesQueue.remove(i)
                 continue
