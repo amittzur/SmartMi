@@ -2,6 +2,7 @@ import numpy as np
 import cv2
 import logging
 from scipy import linalg
+from datetime import datetime
 from enum import Enum
 
 
@@ -193,7 +194,7 @@ class Score:
         self.frameWidth, self.frameWidthRatio = self.calculate_frame_width_score()
         self.eyebrowsMatch, self.leftEyebrow, self.rightEyebrow = self.calculate_eyebrows_match_score()
         self.lowerCheekLine, self.leftCheekLine, self.rightCheekLine = self.calculate_lower_cheek_line_score()
-        self.frameShape, self.circularityPanelty, self.faceAspectRatio, self.face_circularity, self.face_circleCenter, self.face_circleRadius, \
+        self.frameShape, self.circularityPanelty, self.faceAspectRatio, self.faceCircularity, self.face_circleCenter, self.face_circleRadius, \
                 self.leftLens_circleCenter, self.leftLens_circleRadius, self.rightLens_circleCenter, self.rightLens_circleRadius = self.frame_shape_score()
         self.DBL, self.DBLWidthRatio = self.calculate_DBL_score()
         self.frameColor, self.colorDiff = self.calculate_frame_color_score()
@@ -275,7 +276,7 @@ class Score:
         return cheekLineScore
 
     def frame_shape_score(self):
-        face_circleCenter, face_circleRadius, _, face_circularity = fit_circle(self.faceFeatures.jawLine)
+        face_circleCenter, face_circleRadius, _, faceCircularity = fit_circle(self.faceFeatures.jawLine)
         faceAspectRatio = self.faceFeatures.height / self.faceFeatures.width
         leftLens_circleCenter, leftLens_circleRadius, _, leftLens_circularity = fit_circle(self.lenspair.leftContour)
         #leftLensAspectRatio = self.lenspair.leftHeight / self.lenspair.leftWidth
@@ -289,24 +290,24 @@ class Score:
         ellipticalityUpperThreshold = 0.7
         ellipticalityLowerThreshold = 0.3
 
-        circularityPanelty = 5 * (1 - abs(face_circularity - lenspair_circularity))
+        circularityPanelty = 5 * (1 - abs(faceCircularity - lenspair_circularity))
         if faceAspectRatio <= aspectRatioLowerThreshold:
             aspectRatioWeight = 0
         else:
             m = 1 / (aspectRatioUpperThreshold - aspectRatioLowerThreshold)
             n = 0 - m * aspectRatioLowerThreshold
             aspectRatioWeight = min(m * faceAspectRatio + n, 1)
-        if face_circularity <= ellipticalityLowerThreshold:
+        if faceCircularity <= ellipticalityLowerThreshold:
             ellipticalityWeight = 0
         else:
             m = 1 / (ellipticalityUpperThreshold - ellipticalityLowerThreshold)
             n = 0 - m * ellipticalityLowerThreshold
-            ellipticalityWeight = min(m * face_circularity + n, 1)
+            ellipticalityWeight = min(m * faceCircularity + n, 1)
 
         frameShapeScore = round(max(10 - circularityPanelty * (1 - aspectRatioWeight * ellipticalityWeight), 0), 2)
 
         logging.info(f'faceAspectRatio: {faceAspectRatio}')
-        logging.info(f'face_circularity: {face_circularity}')
+        logging.info(f'faceCircularity: {faceCircularity}')
         logging.info(f'leftLens_circularity: {leftLens_circularity}')
         logging.info(f'rightLens_circularity: {rightLens_circularity}')
         logging.info(f'circularityPanelty: {circularityPanelty}')
@@ -314,7 +315,7 @@ class Score:
         logging.info(f'ellipticalityWeight: {ellipticalityWeight}')
         logging.info(f'frameShapeScore: {frameShapeScore}')
         logging.info('')
-        return frameShapeScore, round(circularityPanelty, 2), round(faceAspectRatio, 2), round(face_circularity, 2),\
+        return frameShapeScore, round(circularityPanelty, 2), round(faceAspectRatio, 2), round(faceCircularity, 2),\
                 face_circleCenter, face_circleRadius, leftLens_circleCenter, leftLens_circleRadius, rightLens_circleCenter, rightLens_circleRadius
     
     def calculate_DBL_score(self):
@@ -427,6 +428,8 @@ class Result:
         self.annotatedImage = annotatedImage
         self.appScore = appScore
         self.userScore = userScore
+        now = datetime.now()
+        self.timeSignature = now.strftime("%d-%m-%Y_%H-%M-%S")
 
 class State(Enum):
     SPLASH = 1

@@ -2,8 +2,8 @@ import numpy as np
 import cv2
 import PySimpleGUI as sg
 import os.path
+import pandas as pd 
 from win32api import GetSystemMetrics
-from csv import writer
 from SmartMiObjects import Result, State
 import configparser
 from DBMonitor import DBMonitor
@@ -12,7 +12,7 @@ from ScoringSystem import ScoringSystem
 
 ### Spark4 Monitor ###
 def my_callback(image):
-    global Results, NumOfImages, MaxNumOfImages
+    global Results, NumOfImages, MaxNumOfImages, ImageCaptured
     try:
         scs = ScoringSystem(image, BasePath)
         score = scs.calculate_score()
@@ -30,8 +30,8 @@ def my_callback(image):
             set_image_for_display(annotatedImage, idx)
         else:
             set_image_for_display(image, idx)
-        window[f'-IMAGE{idx}_USER_FRAME-'].update(visible=True)
 
+        ImageCaptured = idx
     except Exception as err:
         window["-OUTPUT-"].update(err)
                                         
@@ -82,42 +82,41 @@ def create_app_layout():
     buttonsFrame = sg.Frame(layout=[
         [sg.Button("Show \ Hide annotations", size=(12, 2), font=ButtonFont, key="-SHOW_HIDE-")],
         [sg.Button("Clear images", size=(12, 2), font=ButtonFont, key="-CLEAR_IMAGES-")],
-        [sg.Button("Save results", size=(12, 2), font=ButtonFont, key="-SAVE_RESULTS-", pad=(0,10))],
         [sg.Button("Close", size=(12, 2), font=ButtonFont, key="-CLOSE-")],
         [sg.VStretch()],
         [sg.Image(Shamir_Logo, subsample=2)]],
         title='', size=(350, 350), vertical_alignment='top', element_justification='center', border_width=0, pad=(80, 20))
 
     if Debug:
-        layout = [
-            [buttonsFrame, sg.Multiline(default_text='', size=(45,25), key="-OUTPUT_DEBUG-", reroute_cprint=True, no_scrollbar=True,
+        leftLayout = [buttonsFrame, sg.Multiline(default_text='', size=(45,25), key="-OUTPUT_DEBUG-", reroute_cprint=True, no_scrollbar=True,
                             font='Helvetica 10', justification='c', text_color='white', background_color=backgroundColor, border_width=0, pad=((180,0), 20)),
                 sg.Multiline(default_text='', size=(35,9), key="-OUTPUT-", no_scrollbar=True,
-                            font='Courier 30 bold', justification='c', text_color='white', background_color=backgroundColor, border_width=0,pad=((30,0), 20))],
-                [sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH0-', enable_events=True, visible=True, pad=((20,0), 0)),
-                sg.Frame(layout=[[sg.Text('User score')], [sg.Listbox(["1","2","3","4","5","6","7","8","9","10"], size=(3, 10), key="-IMAGE0_USER_SCORE-", no_scrollbar=True, enable_events=True)]],
-                        title='', element_justification="center", size=(80,300), key="-IMAGE0_USER_FRAME-", border_width=0, visible=False),
-                sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH1-', enable_events=True, visible=True, pad=((120,0), 0)),
-                sg.Frame(layout=[[sg.Text('User score')], [sg.Listbox(["1","2","3","4","5","6","7","8","9","10"], size=(3, 10), key="-IMAGE1_USER_SCORE-", no_scrollbar=True, enable_events=True)]],
-                        title='', element_justification="center", size=(80,300), key="-IMAGE1_USER_FRAME-", border_width=0, visible=False),
-                sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH2-', enable_events=True, visible=True, pad=((120,0), 0)),
-                sg.Frame(layout=[[sg.Text('User score')], [sg.Listbox(["1","2","3","4","5","6","7","8","9","10"], size=(3, 10), key="-IMAGE2_USER_SCORE-", no_scrollbar=True, enable_events=True)]],
-                        title='', element_justification="center", size=(80,300), key="-IMAGE2_USER_FRAME-", border_width=0, visible=False)]
-        ]
+                            font='Courier 30 bold', justification='c', text_color='white', background_color=backgroundColor, border_width=0,pad=((30,0), 20))]
     else:
-        layout = [
-            [buttonsFrame, sg.Multiline(default_text='', size=(45,8), key="-OUTPUT-", no_scrollbar=True,
+        leftLayout = [buttonsFrame, sg.Multiline(default_text='', size=(45,8), key="-OUTPUT-", no_scrollbar=True,
                             font='Courier 30 bold', justification='c', text_color='white', background_color=backgroundColor, border_width=1, pad=(40, 0))],
-            [sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH0-', enable_events=True, visible=True, pad=(40, 0)),
-                sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH1-', enable_events=True, visible=True, pad=(120, 0)),
-                sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH2-', enable_events=True, visible=True, pad=(40, 0))]
+
+    layout = [leftLayout,
+            [sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH0-', enable_events=True, pad=((20,0), 0)),
+            sg.Frame(layout=[[sg.Text('User score')], [sg.Listbox(["1","2","3","4","5","6","7","8","9","10"], size=(3, 10), key="-IMAGE0_USER_SCORE-", no_scrollbar=True, enable_events=True)],
+                                [sg.Button("Update score", size=(6, 2), font=('Helvetica 8 bold'), key="-IMAGE0_USER_SCORE_UPDATE-")]],
+                    title='', element_justification="center", size=(80,300), key="-IMAGE0_USER_FRAME-", border_width=0),
+            sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH1-', enable_events=True, pad=((120,0), 0)),
+            sg.Frame(layout=[[sg.Text('User score')], [sg.Listbox(["1","2","3","4","5","6","7","8","9","10"], size=(3, 10), key="-IMAGE1_USER_SCORE-", no_scrollbar=True, enable_events=True)],
+                                [sg.Button("Update score", size=(6, 2), font=('Helvetica 8 bold'), key="-IMAGE1_USER_SCORE_UPDATE-")]],
+                    title='', element_justification="center", size=(80,300), key="-IMAGE1_USER_FRAME-", border_width=0),
+            sg.Graph((ImageSize[1]+2*BorderWidth, ImageSize[0]+2*BorderWidth), (0, ImageSize[1]+2*BorderWidth), (ImageSize[0]+2*BorderWidth, 0), key='-GRAPH2-', enable_events=True, pad=((120,0), 0)),
+            sg.Frame(layout=[[sg.Text('User score')], [sg.Listbox(["1","2","3","4","5","6","7","8","9","10"], size=(3, 10), key="-IMAGE2_USER_SCORE-", no_scrollbar=True, enable_events=True)],
+                                [sg.Button("Update score", size=(6, 2), font=('Helvetica 8 bold'), key="-IMAGE0_USER_SCORE_UPDATE-")]],
+                    title='', element_justification="center", size=(80,300), key="-IMAGE2_USER_FRAME-", border_width=0)]
         ]
 
     return layout
 
 def set_clear_image():
     clearImage = np.full((ImageSize[0], ImageSize[1], 3), BackgroundColor[::-1], dtype=np.uint8)
-    clearImage = cv2.copyMakeBorder(src=clearImage, top=BorderWidth, bottom=BorderWidth, left=BorderWidth, right=BorderWidth, value=BackgroundColor[::-1], borderType=cv2.BORDER_CONSTANT) 
+    #clearImage = cv2.copyMakeBorder(src=clearImage, top=BorderWidth, bottom=BorderWidth, left=BorderWidth, right=BorderWidth, value=BackgroundColor[::-1], borderType=cv2.BORDER_CONSTANT) 
+    clearImage = cv2.copyMakeBorder(src=clearImage, top=BorderWidth, bottom=BorderWidth, left=BorderWidth, right=BorderWidth, value=(255,255,255), borderType=cv2.BORDER_CONSTANT) 
     imgbytes = cv2.imencode('.png', clearImage)[1].tobytes()                 # Convert the images to a format that PySimpleGUI can display
     return imgbytes
 
@@ -138,7 +137,7 @@ def display_detailed_score(score):
     sg.cprint('')
     sg.cprint('Circularity panelty = {}'.format(score.circularityPanelty), font=normalFont)
     sg.cprint('Face aspect ratio = {}'.format(score.faceAspectRatio), font=normalFont)
-    sg.cprint('Face circularity score = {}'.format(score.face_circularity), font=normalFont)
+    sg.cprint('Face circularity score = {}'.format(score.faceCircularity), font=normalFont)
     sg.cprint('Frame shape score = {}'.format(score.frameShape), font=titleFont)
     sg.cprint('')
     sg.cprint('DBL width ratio = {}'.format(score.DBLWidthRatio), font=normalFont)
@@ -190,27 +189,56 @@ def clear_images():
         Results[f'{i}'] = []
         Images4Display[f'{i}'] = []
         window[f'-GRAPH{i}-'].draw_image(data=ClearImage, location=(0, 0))
-        window[f'-IMAGE{i}_USER_FRAME-'].update(visible=False)
+        window[f'-IMAGE{i}_USER_SCORE-'].update(["1","2","3","4","5","6","7","8","9","10"])
 
-def save_results():
-    global Results, NumOfImages
-    if NumOfImages == 0:
-        return
+def get_user_score(i):
+    window["-OUTPUT-"].update(f'Please choose updated user score for image {i+1}.')
+    while True:
+        event, values = window.read()
+        if event == f"-IMAGE{i}_USER_SCORE-":
+            Results[f'{i}'].userScore = values[f"-IMAGE{i}_USER_SCORE-"][0]
+            break
+    return Results[f'{i}'].userScore
 
-    with open('FrameFitting.csv', 'a') as f_object:
-        writer_object = writer(f_object)
-    
-        for i in range(MaxNumOfImages):
-            if type(Results[f"{i}"]) != list:
-                score = Results[f'{i}'].appScore
-            
-            List = [score.frameWidthRatio, score.frameWidth, score.leftEyebrow, score.rightEyebrow, score.eyebrowsMatch, score.leftCheekLine, score.rightCheekLine, score.lowerCheekLine,\
-                    score.circularityPanelty, score.faceAspectRatio, score.face_circularity, score.frameShape, score.DBLWidthRatio, score.DBL,\
-                    score.lenspair.color, score.colorDiff, score.frameColor, score.frameAreaRatio, score.frameArea,\
-                    score.W["frameWidth"], score.W["eyebrowsMatch"], score.W["lowerCheekLine"], score.W["frameShape"], score.W["DBL"], score.W["frameColor"], score.W["frameArea"],\
-                    score.total, Results[f'{i}'].userScore]
-            writer_object.writerow(List)
-        f_object.close()
+def save_result(i):
+    global df_FrameFitting
+
+    score = Results[f'{i}'].appScore
+    new_row = {"TimeSignature": Results[f'{i}'].timeSignature, "FrameWidthRatio": score.frameWidthRatio, "FrameWidth": score.frameWidth,
+                "LeftEyebrow": score.leftEyebrow, "RightEyebrow": score.rightEyebrow, "EyebrowsMatch": score.eyebrowsMatch,
+                "LeftCheekLine": score.leftCheekLine, "RightCheekLine": score.rightCheekLine, "LowerCheekLine": score.lowerCheekLine,
+                "CircularityPanelty": score.circularityPanelty, "FaceCircularity": score.faceCircularity, "FaceAspectRatio": score.faceAspectRatio, "FrameShape": score.frameShape,
+                "DBLWidthRatio": score.DBLWidthRatio, "DBL": score.DBL, "Face_R": score.faceFeatures.skinColor[0], "Face_G": score.faceFeatures.skinColor[1], "Face_B": score.faceFeatures.skinColor[2],
+                "Lenspair_R": score.lenspair.color[0], "Lenspair_G": score.lenspair.color[1], "Lenspair_B": score.lenspair.color[2], "ColorDiff": score.colorDiff, "FrameColor": score.frameColor,
+                "FrameAreaRatio": score.frameAreaRatio, "FrameArea": score.frameArea,
+                "W_frameWidth": score.W["frameWidth"], "W_eyebrowsMatch": score.W["eyebrowsMatch"], "W_lowerCheekLine": score.W["lowerCheekLine"],
+                "W_frameShape": score.W["frameShape"], "W_DBL": score.W["DBL"], "W_frameColor": score.W["frameColor"], "W_frameArea": score.W["frameArea"],
+                "Total": score.total, "UserScore": Results[f'{i}'].userScore
+                }
+    df_FrameFitting = df_FrameFitting._append(new_row, ignore_index=True)
+    while True:
+        try:
+            df_FrameFitting.to_csv("FrameFitting.csv", index=False) 
+            break
+        except Exception as err:
+            window["-OUTPUT-"].update("Could not save data to 'FrameFitting.csv'.\nPlease make sure the file is closed.")
+            window.refresh()
+
+    cv2.imwrite(os.path.join(BasePath, os.path.join("CapturedImages", f"{Results[f'{i}'].timeSignature}.jpg")), Results[f"{i}"].image)
+
+def update_user_score(i):
+    global df_FrameFitting
+
+    Results[f'{i}'].userScore = values[f"-IMAGE{i}_USER_SCORE-"][0]
+    df_FrameFitting.loc[df_FrameFitting['TimeSignature'] == Results[f'{i}'].timeSignature, 'UserScore'] = Results[f'{i}'].userScore
+
+    while True:
+        try:
+            df_FrameFitting.to_csv("FrameFitting.csv", index=False) 
+            break
+        except Exception as err:
+            window["-OUTPUT-"].update("Could not update 'FrameFitting.csv'.\nPlease make sure the file is closed.")
+            window.refresh()
 
 def read_config(file_path):
     # Initialize the ConfigParser
@@ -228,7 +256,7 @@ Images4Display = {"0": [], "1": [], "2": []}
 MaxNumOfImages = len(Images4Display)
 NumOfImages = 0
 ButtonFont = ('Helvetica 12 bold')
-BorderWidth = 5
+BorderWidth = 3
 BackgroundColor = (193,0,0)
 SparkImageSize = [2600, 1950]
 ImageScaleFactor = (GetSystemMetrics(0) * 0.7)/MaxNumOfImages / SparkImageSize[1]
@@ -239,8 +267,10 @@ Path = os.path.dirname(os.path.abspath(__file__))
 BasePath = os.path.abspath(os.path.join(Path, os.pardir))
 IconsPath = os.path.join(os.path.abspath(os.path.join(Path, os.pardir)), 'Icons')
 state = State.SPLASH
-Debug = True
+Debug = False
 DisplayAnnotations = True
+ImageCaptured = -1
+
 
 ### Window layout ###
 sg.theme("DarkRed1")
@@ -253,6 +283,14 @@ db_path = config['spark']['db_path'] #r'C:\ProgramData\Shamir\Spark4\DB\Spark4.d
 
 dm = DBMonitor(db_path)
 dm.run(my_callback)
+
+while True:
+    try:
+        df_FrameFitting = pd.read_csv("FrameFitting.csv") 
+        break
+    except Exception as err:
+        window["-OUTPUT-"].update("Could not open 'FrameFitting.csv'.\nPlease make sure the file is closed.")
+
 
 ### Main code ###
 while True:
@@ -273,11 +311,16 @@ while True:
         event, values = window.read(timeout=20)
 
     if state != State.SPLASH:
-            
+        if ImageCaptured >= 0:
+            get_user_score(ImageCaptured)
+            save_result(ImageCaptured)
+            window["-OUTPUT-"].update(f'Image {ImageCaptured+1} data was saved.')
+            ImageCaptured = -1
+
         if event == "-SHOW_HIDE-":
             DisplayAnnotations = not DisplayAnnotations
             for i in range(MaxNumOfImages):
-                if len(Results[f'{i}']) > 0:
+                if type(Results[f'{i}']) != list:
                     if DisplayAnnotations:
                         set_image_for_display(Results[f'{i}'].annotatedImage, i)
                     else:
@@ -290,28 +333,47 @@ while True:
             if ans == 'Yes':
                 clear_images()
 
-        if event == "-SAVE_RESULTS-":
-            isMissingData = False
-            for i in range(MaxNumOfImages):
-                if type(Results[f'{i}']) != list and len(values[f'-IMAGE{i}_USER_SCORE-']) == 0:
-                    window["-OUTPUT-"].update('Please score the frames fit in all the images before saving.')
-                    isMissingData = True
-                    break
-            
-            if not isMissingData:
-                save_results()
-
         if event == "-IMAGE0_USER_SCORE-":
-            if type(Results["0"]) != list:
-                Results['0'].userScore = int(values["-IMAGE0_USER_SCORE-"][0])
+            if type(Results['0']) != list:
+                Results['0'].userScore = values["-IMAGE0_USER_SCORE-"][0]
+            else:
+                window['-IMAGE0_USER_SCORE-'].update(["1","2","3","4","5","6","7","8","9","10"])
 
         if event == "-IMAGE1_USER_SCORE-":
-            if type(Results["1"]) != list:
-                Results['1'].userScore = int(values["-IMAGE1_USER_SCORE-"][0])
+            if type(Results['1']) != list:
+                Results['1'].userScore = values["-IMAGE1_USER_SCORE-"][0]
+            else:
+                window['-IMAGE1_USER_SCORE-'].update(["1","2","3","4","5","6","7","8","9","10"])
 
         if event == "-IMAGE2_USER_SCORE-":
-            if type(Results["2"]) != list:
-                Results['2'].userScore = int(values["-IMAGE2_USER_SCORE-"][0])
+            if type(Results['2']) != list:
+                Results['2'].userScore = values["-IMAGE2_USER_SCORE-"][0]
+            else:
+                window['-IMAGE2_USER_SCORE-'].update(["1","2","3","4","5","6","7","8","9","10"])
+
+        if event == "-IMAGE0_USER_SCORE_UPDATE-":
+            if type(Results['0']) != list and len(values["-IMAGE0_USER_SCORE-"][0]) > 0:
+                try:
+                    update_user_score(0)
+                    window["-OUTPUT-"].update('Image 1 score was updated.')
+                except Exception as err:
+                    window["-OUTPUT-"].update("Could not update the user score of image 1.")
+                    
+        if event == "-IMAGE1_USER_SCORE_UPDATE-":
+            if type(Results['1']) != list and len(values["-IMAGE1_USER_SCORE-"][0]) > 0:
+                try:
+                    update_user_score(1)
+                    window["-OUTPUT-"].update('Image 2 score was updated.')
+                except Exception as err:
+                    window["-OUTPUT-"].update("Could not update the user score of image 2.")
+
+        if event == "-IMAGE2_USER_SCORE_UPDATE-":
+            if type(Results['2']) != list and len(values["-IMAGE2_USER_SCORE-"][0]) > 0:
+                try:
+                    update_user_score(2)
+                    window["-OUTPUT-"].update('Image 3 score was updated.')
+                except Exception as err:
+                    window["-OUTPUT-"].update("Could not update the user score of image 3.")
 
         for i in range(MaxNumOfImages):
             if event == f'-GRAPH{i}-':
@@ -322,9 +384,12 @@ while True:
                         Results[f'{i}'] = []
                         Images4Display[f'{i}'] = []
                         window[f'-GRAPH{i}-'].draw_image(data=ClearImage, location=(0, 0))
-                        window[f'-IMAGE{i}_USER_FRAME-'].update(visible=False)
+                        window[f'-IMAGE{i}_USER_SCORE-'].update(["1","2","3","4","5","6","7","8","9","10"])
                         NumOfImages = NumOfImages - 1
                         IndicesQueue.remove(i)
                 continue
-            
+
+df_FrameFitting.dropna(subset=['TimeSignature'], inplace=True)
+df_FrameFitting.to_csv("FrameFitting.csv", index=False) 
+
 window.close()
