@@ -1,6 +1,7 @@
 import numpy as np
 import cv2
 import logging
+import uuid
 from scipy import linalg
 from datetime import datetime
 from enum import Enum
@@ -430,6 +431,7 @@ class Result:
         self.userScore = userScore
         now = datetime.now()
         self.timeSignature = now.strftime("%d-%m-%Y_%H-%M-%S")
+        self.guid = uuid.uuid4()
 
 class State(Enum):
     SPLASH = 1

@@ -201,10 +201,10 @@ def get_user_score(i):
     return Results[f'{i}'].userScore
 
 def save_result(i):
-    global df_FrameFitting
+    global df_FrameFitting, FileName
 
     score = Results[f'{i}'].appScore
-    new_row = {"TimeSignature": Results[f'{i}'].timeSignature, "FrameWidthRatio": score.frameWidthRatio, "FrameWidth": score.frameWidth,
+    new_row = {"GUID": Results[f'{i}'].guid, "TimeSignature": Results[f'{i}'].timeSignature, "FrameWidthRatio": score.frameWidthRatio, "FrameWidth": score.frameWidth,
                 "LeftEyebrow": score.leftEyebrow, "RightEyebrow": score.rightEyebrow, "EyebrowsMatch": score.eyebrowsMatch,
                 "LeftCheekLine": score.leftCheekLine, "RightCheekLine": score.rightCheekLine, "LowerCheekLine": score.lowerCheekLine,
                 "CircularityPanelty": score.circularityPanelty, "FaceCircularity": score.faceCircularity, "FaceAspectRatio": score.faceAspectRatio, "FrameShape": score.frameShape,
@@ -218,26 +218,26 @@ def save_result(i):
     df_FrameFitting = df_FrameFitting._append(new_row, ignore_index=True)
     while True:
         try:
-            df_FrameFitting.to_csv("FrameFitting.csv", index=False) 
+            df_FrameFitting.to_csv(FileName, index=False) 
             break
         except Exception as err:
-            window["-OUTPUT-"].update("Could not save data to 'FrameFitting.csv'.\nPlease make sure the file is closed.")
+            window["-OUTPUT-"].update(f"Could not save data to '{FileName}'.\nPlease make sure the file is closed.")
             window.refresh()
 
-    cv2.imwrite(os.path.join(BasePath, os.path.join("CapturedImages", f"{Results[f'{i}'].timeSignature}.jpg")), Results[f"{i}"].image)
+    cv2.imwrite(os.path.join(BasePath, os.path.join("CapturedImages", f"{Results[f'{i}'].guid}.jpg")), Results[f"{i}"].image)
 
 def update_user_score(i):
-    global df_FrameFitting
+    global df_FrameFitting, FileName
 
     Results[f'{i}'].userScore = values[f"-IMAGE{i}_USER_SCORE-"][0]
-    df_FrameFitting.loc[df_FrameFitting['TimeSignature'] == Results[f'{i}'].timeSignature, 'UserScore'] = Results[f'{i}'].userScore
+    df_FrameFitting.loc[df_FrameFitting['GUID'] == Results[f'{i}'].guid, 'UserScore'] = Results[f'{i}'].userScore
 
     while True:
         try:
-            df_FrameFitting.to_csv("FrameFitting.csv", index=False) 
+            df_FrameFitting.to_csv(FileName, index=False) 
             break
         except Exception as err:
-            window["-OUTPUT-"].update("Could not update 'FrameFitting.csv'.\nPlease make sure the file is closed.")
+            window["-OUTPUT-"].update(f"Could not update '{FileName}'.\nPlease make sure the file is closed.")
             window.refresh()
 
 def read_config(file_path):
@@ -270,6 +270,7 @@ state = State.SPLASH
 Debug = False
 DisplayAnnotations = True
 ImageCaptured = -1
+FileName = "FrameFitting.csv"
 
 
 ### Window layout ###
@@ -284,12 +285,19 @@ db_path = config['spark']['db_path'] #r'C:\ProgramData\Shamir\Spark4\DB\Spark4.d
 dm = DBMonitor(db_path)
 dm.run(my_callback)
 
-while True:
-    try:
-        df_FrameFitting = pd.read_csv("FrameFitting.csv") 
-        break
-    except Exception as err:
-        window["-OUTPUT-"].update("Could not open 'FrameFitting.csv'.\nPlease make sure the file is closed.")
+if not os.path.exists(FileName):
+    df_FrameFitting = pd.DataFrame(columns=["GUID", "TimeSignature", "FrameWidthRatio", "FrameWidth", "LeftEyebrow", "RightEyebrow", "EyebrowsMatch", "LeftCheekLine", "RightCheekLine",\
+                                            "LowerCheekLine", "CircularityPanelty", "FaceCircularity", "FaceAspectRatio", "FrameShape", "DBLWidthRatio", "DBL",\
+                                            "Face_R", "Face_G", "Face_B", "Lenspair_R", "Lenspair_G", "Lenspair_B", "ColorDiff", "FrameColor", "FrameAreaRatio", "FrameArea",\
+                                            "W_frameWidth", "W_eyebrowsMatch", "W_lowerCheekLine", "W_frameShape", "W_DBL", "W_frameColor", "W_frameArea", "Total", "UserScore"])
+    df_FrameFitting.to_csv(FileName, index=False)
+else:
+    while True:
+        try:
+            df_FrameFitting = pd.read_csv(FileName) 
+            break
+        except Exception as err:
+            window["-OUTPUT-"].update(f"Could not open '{FileName}'.\nPlease make sure the file is closed.")
 
 
 ### Main code ###
@@ -389,7 +397,7 @@ while True:
                         IndicesQueue.remove(i)
                 continue
 
-df_FrameFitting.dropna(subset=['TimeSignature'], inplace=True)
-df_FrameFitting.to_csv("FrameFitting.csv", index=False) 
+#df_FrameFitting.dropna(subset=['TimeSignature'], inplace=True)
+#df_FrameFitting.to_csv(FileName, index=False) 
 
 window.close()
