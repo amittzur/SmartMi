@@ -5,6 +5,8 @@
 
 #external library
 SparkSdkApi/
+Spark4Tester 5.9/
+CapturedImages/
 
 #runtime files
 face_contour_points.json

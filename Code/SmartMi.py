@@ -3,6 +3,7 @@ import cv2
 import PySimpleGUI as sg
 import os.path
 import pandas as pd 
+import socket
 from win32api import GetSystemMetrics
 from SmartMiObjects import Result, State
 import configparser
@@ -80,6 +81,7 @@ def create_app_layout():
     backgroundColor = '#{:02x}{:02x}{:02x}'.format(*BackgroundColor)
 
     buttonsFrame = sg.Frame(layout=[
+        [sg.Button("Capture image", size=(12, 2), font=ButtonFont, key="-CAPTURE_IMAGE-")],
         [sg.Button("Show \ Hide annotations", size=(12, 2), font=ButtonFont, key="-SHOW_HIDE-")],
         [sg.Button("Clear images", size=(12, 2), font=ButtonFont, key="-CLEAR_IMAGES-")],
         [sg.Button("Close", size=(12, 2), font=ButtonFont, key="-CLOSE-")],
@@ -299,6 +301,11 @@ else:
         except Exception as err:
             window["-OUTPUT-"].update(f"Could not open '{FileName}'.\nPlease make sure the file is closed.")
 
+# Define the target IP and port
+udp_ip = "127.0.0.1" # Replace with the target IP address
+udp_port = 5005 # Replace with the target port
+sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) # Create the UDP socket
+
 
 ### Main code ###
 while True:
@@ -324,6 +331,10 @@ while True:
             save_result(ImageCaptured)
             window["-OUTPUT-"].update(f'Image {ImageCaptured+1} data was saved.')
             ImageCaptured = -1
+
+        if event == "-CAPTURE_IMAGE-":          
+            message = "1"
+            sock.sendto(message.encode(), (udp_ip, udp_port)) # Send the message
 
         if event == "-SHOW_HIDE-":
             DisplayAnnotations = not DisplayAnnotations
