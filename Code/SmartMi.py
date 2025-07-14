@@ -7,11 +7,13 @@ from win32api import GetSystemMetrics
 from SmartMiObjects import Result, State
 import configparser
 from DBMonitor import DBMonitor
+from FileSystemMonitor import FileSystemMonitor
 from ScoringSystem import ScoringSystem
 
 
 ### Spark4 Monitor ###
 def my_callback(image):
+    print("New image detected.")
     global Results, NumOfImages, MaxNumOfImages, ImageCaptured
     try:
         scs = ScoringSystem(image, BasePath)
@@ -266,6 +268,7 @@ IndicesQueue = []
 Path = os.path.dirname(os.path.abspath(__file__))
 BasePath = os.path.abspath(os.path.join(Path, os.pardir))
 IconsPath = os.path.join(os.path.abspath(os.path.join(Path, os.pardir)), 'Icons')
+Snapshots = os.path.join(os.path.abspath(os.path.join(Path, os.pardir)), 'Spark4Tester 5.9\Snapshots')
 state = State.SPLASH
 Debug = False
 DisplayAnnotations = True
@@ -282,8 +285,11 @@ window = create_splash_screen_layout_window()
 # Start Monitoring the Spark4 DB
 db_path = config['spark']['db_path'] #r'C:\ProgramData\Shamir\Spark4\DB\Spark4.db'
 
-dm = DBMonitor(db_path)
-dm.run(my_callback)
+#dm = DBMonitor(db_path)
+#dm.run(my_callback)
+
+fsm = FileSystemMonitor(Snapshots, file_extensions=(".png"))
+fsm.run(my_callback)
 
 if not os.path.exists(FileName):
     df_FrameFitting = pd.DataFrame(columns=["GUID", "TimeSignature", "FrameWidthRatio", "FrameWidth", "LeftEyebrow", "RightEyebrow", "EyebrowsMatch", "LeftCheekLine", "RightCheekLine",\
